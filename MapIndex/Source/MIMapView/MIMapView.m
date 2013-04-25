@@ -14,9 +14,9 @@
 #import "MIIndex.h"
 #import "MITypes.h"
 
-const double  _MIMapViewMercatorRadius = 85445659.44705395;
-
-const NSTimeInterval _MIMapViewUpdateDelay = 0.3;
+const double _MIWidthInPixels = 268435456.0;
+const double _MIMercatorRadius = _MIWidthInPixels / M_PI;
+const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
 
 typedef void (^_MIMapViewAction)(void);
 
@@ -45,7 +45,7 @@ typedef void (^_MIMapViewAction)(void);
 	_modificationActions = [NSMutableArray new];
 
 	_index = [MIIndex new];
-	_annotationsLevel = NSUIntegerMax;
+	_annotationsLevel = 0;
 
 	[self setTransactionFactory:[MITransactionFactory new]];
 
@@ -126,22 +126,21 @@ typedef void (^_MIMapViewAction)(void);
 	}
 }
 
+
 #pragma mark - Zoom Level
 
 - (NSUInteger)zoomLevel
 {
-	CLLocationDegrees longitudeDelta = self.region.span.longitudeDelta;
-	CGFloat mapWidthInPixels = self.bounds.size.width;
-
-	double zoomScale = longitudeDelta * _MIMapViewMercatorRadius * M_PI / (180.0 * mapWidthInPixels);
+	double mapWidthInPixels = self.bounds.size.width;
+	double zoomScale = self.region.span.longitudeDelta * _MIMercatorRadius * M_PI / (180.0 * mapWidthInPixels);
 	return (NSUInteger)ceil(MIZoomDepth - log2(zoomScale));
 }
 
 #pragma mark - Annotations Update Schedule
 
-- (void)setNeedsUpdateAnnotations
+- (void)setUpdateAnnotationsIfNeeded
 {
-	if (![self isLocked] && _loopObserver == NULL)
+	if (_loopObserver == NULL && ![self isLocked])
 	{
 		void (^handler)(CFRunLoopObserverRef, CFRunLoopActivity) = ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity)
 		{
@@ -174,7 +173,7 @@ typedef void (^_MIMapViewAction)(void);
 
 - (void)updateAnnotations
 {
-	NSAssert(![self isLocked], @"%@: Attemp to update annotation with active transaction: %@", self, _activeTransaction);
+	MIAssert2(![self isLocked], @"%p: Attemp to update annotation with active transaction: %@", (__bridge void *)self, _activeTransaction);
 
 	[self flushModificationActions];
 
@@ -213,11 +212,36 @@ typedef void (^_MIMapViewAction)(void);
 	[self processTransaction:transaction];
 }
 
+#pragma mark - Transactions
+
 - (void)processTransaction:(MITransaction *)transaction
 {
+	_activeTransaction = transaction;
 	_annotationsLevel = [transaction.targetLevel unsignedIntegerValue];
+
 	[transaction invokeWithMapView:self];
+
+	if (![self isLocked])
+	{
+		_activeTransaction = nil;
+	}
 }
+
+
+- (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
+{
+	if (_activeTransaction != nil && [[views lastObject] annotation] != self.userLocation)
+	{
+		[_activeTransaction mapView:self didAddAnnotationViews:views];
+	}
+
+	if (_flags.delegateDidAddAnnotationViews)
+	{
+		[_targetDelegate mapView:mapView didAddAnnotationViews:views];
+	}
+}
+
+#pragma mark - Modification Actions
 
 - (void)requestModificationAction:(_MIMapViewAction)action
 {
@@ -225,7 +249,7 @@ typedef void (^_MIMapViewAction)(void);
 	{
 		action();
 
-		[self setNeedsUpdateAnnotations];
+		[self setUpdateAnnotationsIfNeeded];
 	}
 	else
 	{
@@ -325,16 +349,6 @@ typedef void (^_MIMapViewAction)(void);
 	return view;
 }
 
-- (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
-{
-	[_activeTransaction mapView:self didAddAnnotationViews:views];
-
-	if (_flags.delegateDidAddAnnotationViews)
-	{
-		[_targetDelegate mapView:mapView didAddAnnotationViews:views];
-	}
-}
-
 - (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated
 {
 	[_updateAnnotationsTimer invalidate];
@@ -347,7 +361,7 @@ typedef void (^_MIMapViewAction)(void);
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-	NSInvocation *invocation = [NSInvocation invocationForTarget:self selector:@selector(setNeedsUpdateAnnotations)];
+	NSInvocation *invocation = [NSInvocation invocationForTarget:self selector:@selector(setUpdateAnnotationsIfNeeded)];
 
 	_updateAnnotationsTimer = [NSTimer scheduledTimerWithTimeInterval:_MIMapViewUpdateDelay
 														   invocation:invocation

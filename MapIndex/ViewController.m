@@ -27,7 +27,7 @@ void VCTraverseCallback(MKMapPoint point, void *payload, void *context)
     
     NSArray *airports = [Airport allAirports];
     
-	MIQuadTreeNode *root = MIQuadTreeNodeCreate(MKMapRectWorld, 0);
+	MIQuadTreeNodeRef root = MIQuadTreeNodeCreate(MKMapRectWorld, 0);
 	for (Airport *airport in airports)
 	{
 		MIQuadTreeNodeInsertPoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *) airport);

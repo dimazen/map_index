@@ -32,7 +32,7 @@
 	CFRunLoopObserverRef _loopObserver;
 }
 
-- (void)setNeedsUpdateAnnotations;
+- (void)setUpdateAnnotationsIfNeeded;
 
 @property (nonatomic, strong) MITransactionFactory *transactionFactory;
 

@@ -6,18 +6,18 @@
 #import "MIMapView.h"
 #import "MIMapView+MITransaction.h"
 
-const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
+const NSTimeInterval _SDDescendingMapTransactionDuration = 0.2;
 
 @implementation MIDescendingTransaction
 
 - (void)invokeWithMapView:(MIMapView *)mapView
 {
-	[mapView addTransactionAnnotations:[self.target allObjects]];
+	[mapView transaction:self addAnnotations:[self.target allObjects]];
 }
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	[mapView lock];
+	[mapView lock:self];
 
 	NSMutableSet *removingViews = [[NSMutableSet alloc] initWithCapacity:self.source.count];
 	[self.source enumerateObjectsUsingBlock:^(id <MKAnnotation> obj, BOOL *stop)
@@ -31,7 +31,7 @@ const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 
 	[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
-	[UIView animateWithDuration:_MIDescendingTransactionDuration animations:^
+	[UIView animateWithDuration:_SDDescendingMapTransactionDuration animations:^
 	{
 		[removingViews makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
@@ -47,8 +47,8 @@ const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 			[view setAlpha:1.f];
 		}];
 
-		[mapView removeTransactionAnnotations:[self.source allObjects]];
-		[mapView unlock];
+		[mapView transaction:self removeAnnotations:[self.source allObjects]];
+		[mapView unlock:self];
 	}];
 }
 

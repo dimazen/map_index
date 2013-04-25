@@ -5,22 +5,22 @@
 
 #import "MIMapView+MITransaction.h"
 
-const NSTimeInterval _MIRegularTransactionDuration = 0.2;
+const NSTimeInterval _SDRegularMapTransactionDuration = 0.2;
 
 @implementation MIRegularTransaction
 
 - (void)invokeWithMapView:(MIMapView *)mapView
 {
-	[mapView addTransactionAnnotations:[self.target allObjects]];
+	[mapView transaction:self addAnnotations:[self.target allObjects]];
 }
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	[mapView lock];
+	[mapView lock:self];
 
 	[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
-	[UIView animateWithDuration:_MIRegularTransactionDuration animations:^
+	[UIView animateWithDuration:_SDRegularMapTransactionDuration animations:^
 	{
 		[views enumerateObjectsUsingBlock:^(UIView *view, NSUInteger idx, BOOL *stop)
 		{
@@ -29,9 +29,9 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 	} completion:^(BOOL finished)
 	{
-		[mapView removeTransactionAnnotations:[self.source allObjects]];
+		[mapView transaction:self removeAnnotations:[self.source allObjects]];
 
-		[mapView unlock];
+		[mapView unlock:self];
 	}];
 }
 
