@@ -17,10 +17,20 @@ typedef struct MIQuadTreeNode *MIQuadTreeNodeRef;
 MI_EXTERN MIQuadTreeNodeRef MIQuadTreeNodeCreate(MKMapRect rect, unsigned char level);
 MI_EXTERN void MIQuadTreeNodeFree(MIQuadTreeNodeRef node);
 
+/**
+* If point, presented in tree inserted - behaviour undefined
+*/
 MI_EXTERN void MIQuadTreeNodeInsertPoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload);
+
+/**
+* If point, not presented in tree removed - behaviour undefined
+*/
 MI_EXTERN void MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload);
 
 MI_EXTERN void MIQuadTreeNodeTraversRectPoints(MIQuadTreeNodeRef node, MKMapRect rect, unsigned char traversLevel, MITraverseCallback callback, void *context);
 MI_EXTERN void MIQuadTreeNodeTraversAllPoints(MIQuadTreeNodeRef node, MITraverseCallback callback);
+
+MI_EXTERN bool MIQuadTreeNodeIsDescendant(MIQuadTreeNodeRef node, MIQuadTreeNodeRef parent);
+MI_EXTERN bool MIQuadTreeNodeContainsPoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload);
 
 #endif

@@ -23,7 +23,6 @@ struct MIQuadTreeNode
 	MKMapRect rect;
 
 	MIListElementRef listHead;
-
 	unsigned int count;
 
 	unsigned char level;
@@ -68,21 +67,27 @@ MIQuadTreeNodeRef MIQuadTreeNodeCreate(MKMapRect rect, unsigned char level)
 	return node;
 }
 
-void MIQuadTreeNodeFree(MIQuadTreeNodeRef node)
+void _MIQuadTreeNodeFree(MIQuadTreeNodeRef node)
 {
-	if (node->topLeftLeaf == NULL)
+	if (node->topLeftLeaf != NULL)
 	{
-		// fixme: rewrite remove due to single pointer
-		MIQuadTreeNodeFree(node->topLeftLeaf);
-		MIQuadTreeNodeFree(node->topRightLeaf);
-		MIQuadTreeNodeFree(node->bottomLeftLeaf);
-		MIQuadTreeNodeFree(node->bottomRightLeaf);
+		_MIQuadTreeNodeFree(node->topLeftLeaf);
+		_MIQuadTreeNodeFree(node->topRightLeaf);
+		_MIQuadTreeNodeFree(node->bottomLeftLeaf);
+		_MIQuadTreeNodeFree(node->bottomRightLeaf);
+
+		free(node->topLeftLeaf);
 	}
 
 	if (node->listHead != NULL)
 	{
 		MIListElementDeleteAll(node->listHead);
 	}
+}
+
+void MIQuadTreeNodeFree(MIQuadTreeNodeRef node)
+{
+	_MIQuadTreeNodeFree(node);
 
 	free(node);
 }
@@ -184,7 +189,7 @@ void MIQuadTreeNodeInsertPoint(MIQuadTreeNodeRef node, MKMapPoint point, void *p
 
 void _MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload)
 {
-	if (node->count == 0) return;
+	NSCParameterAssert(node->count > 0);
 
 	if (node->topLeftLeaf != nil)
 	{
@@ -192,13 +197,15 @@ void _MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *
 	}
 	else
 	{
-		// fixme: add list remove
+		MIListElementDelete(node->listHead, payload);
 	}
 }
 
 void MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload)
 {
 	if (!MKMapRectContainsPoint(node->rect, point)) return;
+
+	if (node->count == 0) return;
 
 	_MIQuadTreeNodeRemovePoint(node, point, payload);
 }
@@ -223,7 +230,7 @@ void MIQuadTreeNodeTraversRectPoints(MIQuadTreeNodeRef node, MKMapRect rect, uns
 		{
 			if (MKMapRectContainsPoint(node->rect, listHead->point))
 			{
-				callback(listHead->point, listHead->payload, NULL);
+				callback(listHead->point, listHead->payload, context);
 				listHead = listHead->nextElement;
 			}
 		}
@@ -250,4 +257,14 @@ void MIQuadTreeNodeTraversAllPoints(MIQuadTreeNodeRef node, MITraverseCallback c
 			listHead = listHead->nextElement;
 		}
 	}
+}
+
+bool MIQuadTreeNodeIsDescendant(MIQuadTreeNodeRef node, MIQuadTreeNodeRef parent)
+{
+
+}
+
+bool MIQuadTreeNodeContainsPoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload)
+{
+
 }
