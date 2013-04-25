@@ -27,7 +27,7 @@ void VCTraverseCallback(MKMapPoint point, void *payload, void *context)
     
     NSArray *airports = [Airport allAirports];
     
-	MIQuadTreeNodeRef root = MIQuadTreeNodeCreate(MKMapRectWorld, 0);
+	MIQuadTreeNodeRef root = MIQuadTreeNodeCreate(MKMapRectWorld);
 	for (Airport *airport in airports)
 	{
 		MIQuadTreeNodeInsertPoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *) airport);
@@ -35,6 +35,11 @@ void VCTraverseCallback(MKMapPoint point, void *payload, void *context)
     
 	MIQuadTreeNodeTraversAllPoints(root, VCTraverseCallback);
 	MIQuadTreeNodeTraversRectPoints(root, MKMapRectWorld, 0, VCTraverseCallback, NULL);
+
+	for (Airport *airport in airports)
+	{
+		NSCParameterAssert(MIQuadTreeNodeContainsPoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *) airport));
+	}
 
 	MIQuadTreeNodeFree(root);
 }

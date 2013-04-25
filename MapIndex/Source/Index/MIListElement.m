@@ -24,6 +24,18 @@ MIListElementRef MIListElementCreate(MKMapPoint point, void *payload, MIListElem
 	return node;
 }
 
+bool MIListElementContainsPoint(MIListElementRef head, void *payload)
+{
+	while (head != NULL)
+	{
+		if (head->payload == payload) return true;
+
+		head = head->nextElement;
+	}
+
+	return false;
+}
+
 MIListElementRef MIListElementDelete(MIListElementRef head, void *payload)
 {
 	MIListElementRef traverse = head;

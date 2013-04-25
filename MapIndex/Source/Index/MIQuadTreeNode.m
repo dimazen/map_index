@@ -7,8 +7,6 @@
 //
 
 #import "MIQuadTreeNode.h"
-#import "MITypes.h"
-#import "MIListElement.h"
 
 const char _MIQuadTreeNodePointsLimit = 1;
 
@@ -25,7 +23,9 @@ struct MIQuadTreeNode
 	MIListElementRef listHead;
 	unsigned int count;
 
-	unsigned char level;
+	unsigned int level;
+
+	MIQuadTreeNodeRef parent;
 };
 
 #pragma mark - Creation
@@ -38,15 +38,16 @@ void _MIQuadTreeNodePullPoint(MIQuadTreeNodeRef source, MIQuadTreeNodeRef target
 	target->count = source->count;
 }
 
-MIQuadTreeNodeRef _MIQuadTreeNodeCreate(MIQuadTreeNodeRef node, MKMapRect rect, unsigned char level)
+MIQuadTreeNodeRef _MIQuadTreeNodeCreate(MIQuadTreeNodeRef node, MIQuadTreeNodeRef parent, MKMapRect rect, unsigned int level)
 {
 	node->rect = rect;
 	node->level = level;
+	node->parent = parent;
 
 	return node;
 }
 
-MIQuadTreeNodeRef MIQuadTreeNodeCreate(MKMapRect rect, unsigned char level)
+MIQuadTreeNodeRef MIQuadTreeNodeCreate(MKMapRect rect)
 {
 	MIQuadTreeNodeRef node = malloc(sizeof(struct MIQuadTreeNode));
 
@@ -59,10 +60,11 @@ MIQuadTreeNodeRef MIQuadTreeNodeCreate(MKMapRect rect, unsigned char level)
 	node->centroid = (MKMapPoint){0.0, 0.0};
 
 	node->listHead = NULL;
-
 	node->count = 0;
 
-	node->level = level;
+	node->level = 0;
+
+	node->parent = NULL;
 
 	return node;
 }
@@ -121,12 +123,12 @@ void _MIQuadTreeNodeSubdivide(MIQuadTreeNodeRef node)
 	void *leaves = malloc(leavesSize);
 	memset(leaves, 0, leavesSize);
 
-	unsigned char level = node->level + 1;
+	unsigned int level = node->level + 1;
 
-	node->topLeftLeaf = _MIQuadTreeNodeCreate(leaves, _MIQuadTreeNodeLeafRect(node, 0), level);
-	node->topRightLeaf = _MIQuadTreeNodeCreate(leaves + sizeof(struct MIQuadTreeNode), _MIQuadTreeNodeLeafRect(node, 1), level);
-	node->bottomLeftLeaf = _MIQuadTreeNodeCreate(leaves + sizeof(struct MIQuadTreeNode) * 2,_MIQuadTreeNodeLeafRect(node, 2), level);
-	node->bottomRightLeaf = _MIQuadTreeNodeCreate(leaves + sizeof(struct MIQuadTreeNode) * 3,_MIQuadTreeNodeLeafRect(node, 3), level);
+	node->topLeftLeaf = _MIQuadTreeNodeCreate(leaves, node, _MIQuadTreeNodeLeafRect(node, 0), level);
+	node->topRightLeaf = _MIQuadTreeNodeCreate(leaves + sizeof(struct MIQuadTreeNode), node, _MIQuadTreeNodeLeafRect(node, 1), level);
+	node->bottomLeftLeaf = _MIQuadTreeNodeCreate(leaves + sizeof(struct MIQuadTreeNode) * 2, node, _MIQuadTreeNodeLeafRect(node, 2), level);
+	node->bottomRightLeaf = _MIQuadTreeNodeCreate(leaves + sizeof(struct MIQuadTreeNode) * 3, node, _MIQuadTreeNodeLeafRect(node, 3), level);
 }
 
 MI_INLINE MIQuadTreeNodeRef _MIQuadTreeNodePointToLeafPtr(MIQuadTreeNodeRef node, MKMapPoint point)
@@ -203,9 +205,7 @@ void _MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *
 
 void MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload)
 {
-	if (!MKMapRectContainsPoint(node->rect, point)) return;
-
-	if (node->count == 0) return;
+	if (!MKMapRectContainsPoint(node->rect, point) || node->count == 0) return;
 
 	_MIQuadTreeNodeRemovePoint(node, point, payload);
 }
@@ -259,12 +259,35 @@ void MIQuadTreeNodeTraversAllPoints(MIQuadTreeNodeRef node, MITraverseCallback c
 	}
 }
 
+#pragma mark - Containment
+
 bool MIQuadTreeNodeIsDescendant(MIQuadTreeNodeRef node, MIQuadTreeNodeRef parent)
 {
+	if (!MKMapRectContainsRect(parent->rect, node->rect)) return false;
 
+	while (node != NULL)
+	{
+		if (node == parent) return true;
+
+		node = node->parent;
+	}
+
+	return false;
+}
+
+bool _MIQuadTreeNodeContainsPoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload)
+{
+	if (node->topLeftLeaf != NULL)
+	{
+		return _MIQuadTreeNodeContainsPoint(_MIQuadTreeNodePointToLeafPtr(node, point), point, payload);
+	}
+
+	return MIListElementContainsPoint(node->listHead, payload);
 }
 
 bool MIQuadTreeNodeContainsPoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload)
 {
+	if (!MKMapRectContainsPoint(node->rect, point) || node->count == 0) return false;
 
+	return _MIQuadTreeNodeContainsPoint(node, point, payload);
 }

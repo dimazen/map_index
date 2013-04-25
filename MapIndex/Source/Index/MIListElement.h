@@ -18,14 +18,16 @@ struct MIListElement
 	MIListElementRef nextElement;
 };
 
-MI_EXTERN MIListElementRef MIListElementCreate(MKMapPoint point, void *payload, MIListElementRef nextElement);
-
-MI_EXTERN MIListElementRef MIListElementDelete(MIListElementRef head, void *payload);
-
 MI_INLINE void MIListElementFree(MIListElementRef listElement)
 {
 	free(listElement);
 }
+
+MI_EXTERN MIListElementRef MIListElementCreate(MKMapPoint point, void *payload, MIListElementRef nextElement);
+
+MI_EXTERN bool MIListElementContainsPoint(MIListElementRef head, void *payload);
+
+MI_EXTERN MIListElementRef MIListElementDelete(MIListElementRef head, void *payload);
 
 /**
 * Returns NULL

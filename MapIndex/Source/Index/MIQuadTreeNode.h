@@ -14,7 +14,9 @@
 
 typedef struct MIQuadTreeNode *MIQuadTreeNodeRef;
 
-MI_EXTERN MIQuadTreeNodeRef MIQuadTreeNodeCreate(MKMapRect rect, unsigned char level);
+MI_EXTERN
+
+MIQuadTreeNodeRef MIQuadTreeNodeCreate(MKMapRect rect);
 MI_EXTERN void MIQuadTreeNodeFree(MIQuadTreeNodeRef node);
 
 /**
