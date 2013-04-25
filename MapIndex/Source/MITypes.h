@@ -21,8 +21,7 @@ static const unsigned char MIZoomDepth = 20;
 #define MI_EXTERN extern
 #endif
 
-#define MI_ASSERT
-#if defined(MI_ASSERT)
+#if MI_ASSERT == 1
 #define MIAssert1(condition, desc, arg) NSAssert((condition), (desc), (arg))
 #define MIAssert2(condition, desc, arg1, arg2) NSAssert((condition), (desc), (arg1), (arg2))
 #define MIAssert3(condition, desc, arg1, arg2, arg3) NSAssert((condition), (desc), (arg1), (arg2), (arg3))
@@ -30,6 +29,12 @@ static const unsigned char MIZoomDepth = 20;
 #define MIAssert1(condition, desc, arg)
 #define MIAssert2(condition, desc, arg1, arg2)
 #define MIAssert3(condition, desc, arg1, arg2, arg3)
+#endif
+
+#if MI_C_PARAM_ASSERT == 1
+#define MICParameterAssert(condition) NSCParameterAssert(condition)
+#else
+#define MICParameterAssert(condition)
 #endif
 
 /**

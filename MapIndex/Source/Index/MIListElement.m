@@ -45,13 +45,13 @@ MIListElementRef MIListElementDelete(MIListElementRef head, void *payload)
 	{
 		if (traverse->payload == payload)
 		{
-			if (traverse == head)
+			if (traverse != head)
 			{
-				head = traverse->nextElement;
+				previous->nextElement = traverse->nextElement;
 			}
 			else
 			{
-				previous->nextElement = traverse->nextElement;
+				head = traverse->nextElement;
 			}
 
 			MIListElementFree(traverse);

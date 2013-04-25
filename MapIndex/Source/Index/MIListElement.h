@@ -33,3 +33,15 @@ MI_EXTERN MIListElementRef MIListElementDelete(MIListElementRef head, void *payl
 * Returns NULL
 */
 MI_EXTERN MIListElementRef MIListElementDeleteAll(MIListElementRef head);
+
+MI_INLINE unsigned int MIListElementCount(MIListElementRef head)
+{
+	unsigned int count = 0;
+	while (head != NULL)
+	{
+		count++;
+		head = head->nextElement;
+	}
+
+	return count;
+}

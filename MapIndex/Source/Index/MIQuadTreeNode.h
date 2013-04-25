@@ -28,6 +28,7 @@ MI_EXTERN void MIQuadTreeNodeInsertPoint(MIQuadTreeNodeRef node, MKMapPoint poin
 * If point, not presented in tree removed - behaviour undefined
 */
 MI_EXTERN void MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload);
+MI_EXTERN void MIQuadTreeNodeRemoveAllPoints(MIQuadTreeNodeRef node);
 
 MI_EXTERN void MIQuadTreeNodeTraversRectPoints(MIQuadTreeNodeRef node, MKMapRect rect, unsigned char traversLevel, MITraverseCallback callback, void *context);
 MI_EXTERN void MIQuadTreeNodeTraversAllPoints(MIQuadTreeNodeRef node, MITraverseCallback callback);

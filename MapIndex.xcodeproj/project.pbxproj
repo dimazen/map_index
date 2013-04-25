@@ -401,6 +401,10 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MapIndex/MapIndex-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MI_ASSERT=0",
+					"MI_C_PARAM_ASSERT=0",
+				);
 				INFOPLIST_FILE = "MapIndex/MapIndex-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -413,6 +417,12 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MapIndex/MapIndex-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"MI_C_PARAM_ASSERT=1",
+					"MI_ASSERT=1",
+				);
 				INFOPLIST_FILE = "MapIndex/MapIndex-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
