@@ -41,12 +41,12 @@ void VCTraverseCallback(MKMapPoint point, void *payload, void *context)
 		NSCParameterAssert(MIQuadTreeNodeContainsPoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *) airport));
 	}
 
-//	MIQuadTreeNodeRemoveAllPoints(root);
+	MIQuadTreeNodeRemoveAllPoints(root);
 
-	for (Airport *airport in airports)
-	{
-		MIQuadTreeNodeRemovePoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *)airport);
-	}
+//	for (Airport *airport in airports)
+//	{
+//		MIQuadTreeNodeRemovePoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *)airport);
+//	}
 
 	MIQuadTreeNodeFree(root);
 }

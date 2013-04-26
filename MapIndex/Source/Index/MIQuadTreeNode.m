@@ -158,10 +158,10 @@ MI_INLINE MIQuadTreeNodeRef _MIQuadTreeNodePointToLeafPtr(MIQuadTreeNodeRef node
 
 void _MIQuadTreeNodeInsertPoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload)
 {
-	node->centroid.x += (point.x - node->centroid.x) / (node->count + 1);
-	node->centroid.y += (point.y - node->centroid.y) / (node->count + 1);
-
 	node->count++;
+
+	node->centroid.x += (point.x - node->centroid.x) / node->count;
+	node->centroid.y += (point.y - node->centroid.y) / node->count;
 
 	if (node->topLeftLeaf != NULL)
 	{
@@ -201,6 +201,23 @@ void _MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *
 {
 	MICParameterAssert((long long)node->count - 1 >= 0);
 
+	node->count--;
+
+	if (node->count > 0)
+	{
+		node->centroid.x -= (point.x - node->centroid.x ) / node->count;
+		node->centroid.y -= (point.y - node->centroid.y) / node->count;
+	}
+	else
+	{
+		node->centroid.x = 0.0;
+		node->centroid.y = 0.0;
+
+		_MIQuadTreeNodeFree(node);
+
+		return;
+	}
+
 	if (node->topLeftLeaf != nil)
 	{
 		_MIQuadTreeNodeRemovePoint(_MIQuadTreeNodePointToLeafPtr(node, point), point, payload);
@@ -210,26 +227,11 @@ void _MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *
 		MICParameterAssert(MIListElementContainsPoint(node->listHead, payload));
 		node->listHead = MIListElementDelete(node->listHead, payload);
 	}
-
-	node->count--;
-
-	if (node->count > 0)
-	{
-		node->centroid.x -= (point.x - node->centroid.x ) / (node->count);
-		node->centroid.y -= (point.y - node->centroid.y) / (node->count);
-	}
-	else
-	{
-		node->centroid.x = 0.0;
-		node->centroid.y = 0.0;
-
-		_MIQuadTreeNodeFree(node);
-	}
 }
 
 void MIQuadTreeNodeRemovePoint(MIQuadTreeNodeRef node, MKMapPoint point, void *payload)
 {
-	if (!MKMapRectContainsPoint(node->rect, point) || node->count == 0) return;
+	if (node->count == 0 || !MKMapRectContainsPoint(node->rect, point)) return;
 
 	_MIQuadTreeNodeRemovePoint(node, point, payload);
 }
