@@ -275,11 +275,7 @@ typedef void (^_MIMapViewAction)(void);
 {
 	[self requestModificationAction:^
 	{
-		for (id <MKAnnotation> annotation in annotations)
-		{
-			// fixme: add required method to index
-//			[_tree insert:annotation];
-		}
+		[_index addAnnotations:annotations];
 	}];
 }
 
@@ -311,6 +307,11 @@ typedef void (^_MIMapViewAction)(void);
 		// fixme: add required method to index
 //		[_tree remove:annotation];
 	}];
+}
+
+- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect
+{
+	return nil;
 }
 
 - (NSArray *)annotations

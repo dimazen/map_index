@@ -36,4 +36,14 @@
 
 @property (nonatomic, strong) MITransactionFactory *transactionFactory;
 
+#pragma mark - Map Modifying
+
+- (void)addAnnotations:(NSArray *)annotations;
+- (void)addAnnotation:(id <MKAnnotation>)annotation;
+- (void)removeAnnotations:(NSArray *)annotations;
+- (void)removeAnnotation:(id <MKAnnotation>)annotation;
+- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect;
+
+- (NSArray *)annotations;
+
 @end

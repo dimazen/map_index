@@ -10,6 +10,7 @@
 #import "ViewController.h"
 #import "Airport.h"
 #import "MIQuadTree.h"
+#import "MIMapView.h"
 
 @interface ViewController ()
 
@@ -27,17 +28,20 @@ void VCTraverseCallback(MIPoint point, MITraverseResultType resultType, MITraver
     [super viewDidLoad];
     
     NSArray *airports = [Airport allAirports];
-    
-	MIQuadTreeRef root = MIQuadTreeCreate(MKMapRectWorld);
-	for (Airport *airport in airports)
-	{
-		MIQuadTreeInsertPoint(root, MIPointMake(MKMapPointForCoordinate(airport.coordinate), (__bridge void *)airport));
-	}
 
-	MITraverse traverse = {.callback = VCTraverseCallback, .context = (__bridge void *)self};
-	MIQuadTreeTraversRectPoints(root, MKMapRectWorld, &traverse);
-	MIQuadTreeTraversLevelRectPoints(root, MKMapRectWorld, 7, &traverse);
-	MIQuadTreeTraversPoints(root, &traverse);
+	MIMapView *view = [MIMapView new];
+	[view addAnnotations:airports];
+
+//	MIQuadTreeRef root = MIQuadTreeCreate(MKMapRectWorld);
+//	for (Airport *airport in airports)
+//	{
+//		MIQuadTreeInsertPoint(root, MIPointMake(MKMapPointForCoordinate(airport.coordinate), (__bridge void *)airport));
+//	}
+//
+//	MITraverse traverse = {.callback = VCTraverseCallback, .context = (__bridge void *)self};
+//	MIQuadTreeTraversRectPoints(root, MKMapRectWorld, &traverse);
+//	MIQuadTreeTraversLevelRectPoints(root, MKMapRectWorld, 7, &traverse);
+//	MIQuadTreeTraversPoints(root, &traverse);
 
 //	for (Airport *airport in airports)
 //	{
@@ -50,8 +54,6 @@ void VCTraverseCallback(MIPoint point, MITraverseResultType resultType, MITraver
 //	{
 //		MIQuadTreeNodeRemovePoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *)airport);
 //	}
-
-	MIQuadTreeFree(root);
 }
 
 - (void)didReceiveMemoryWarning
