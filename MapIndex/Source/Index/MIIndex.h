@@ -14,8 +14,9 @@
 - (void)addAnnotation:(id <MKAnnotation>)annotation;
 - (void)removeAnnotations:(NSArray *)annotations;
 - (void)removeAnnotation:(id <MKAnnotation>)annotation;
-- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect;
 
 - (NSArray *)annotations;
+- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect;
+- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level;
 
 @end

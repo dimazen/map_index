@@ -4,6 +4,8 @@
 #import "MIIndex.h"
 
 #import "MIQuadTree.h"
+#import "MITypes.h"
+#import "MIPoint.h"
 
 @interface MIIndex ()
 {
@@ -81,14 +83,55 @@
 	}
 }
 
-- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect
-{
-	
-}
+#pragma mark - Annotations Access
 
 - (NSArray *)annotations
 {
 	return [_annotations allObjects];
+}
+
+void _MIIndexAnnotationsInMapRect(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
+{
+	[(__bridge NSMutableSet *)traverse->context addObject:(__bridge id <MKAnnotation>)point.identifier];
+}
+
+- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect
+{
+	NSMutableSet *result = [NSMutableSet new];
+	MITraverse traverse =
+	{
+		.callback = _MIIndexAnnotationsInMapRect,
+		.context = (__bridge void *)result,
+	};
+	MIQuadTreeTraversRectPoints(_tree, mapRect, &traverse);
+
+	return result;
+}
+
+void _MIIndexAnnotationsInMapRectLevel(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
+{
+	NSMutableSet *set = (__bridge NSMutableSet *)traverse->context;
+	if (resultType == MITraverseResultTree)
+	{
+
+	}
+	else
+	{
+
+	}
+}
+
+- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level
+{
+	NSMutableSet *result = [NSMutableSet new];
+	MITraverse traverse =
+	{
+		.callback = _MIIndexAnnotationsInMapRect,
+		.context = (__bridge void *)result,
+	};
+	MIQuadTreeTraversLevelRectPoints(_tree, mapRect, level, &traverse);
+
+	return result;
 }
 
 @end

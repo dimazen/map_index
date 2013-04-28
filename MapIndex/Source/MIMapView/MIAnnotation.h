@@ -5,7 +5,7 @@
 
 @protocol MIAnnotation <MKAnnotation>
 
-@property (nonatomic, readonly) NSInteger count;
+@property (nonatomic, readonly) NSUInteger count;
 - (BOOL)contains:(id <MKAnnotation>)annotation;
 - (NSSet *)allAnnotations;
 

@@ -14,25 +14,41 @@
 
 typedef struct MIQuadTree *MIQuadTreeRef;
 
+#pragma mark - Creation
+
 MI_EXTERN MIQuadTreeRef MIQuadTreeCreate(MKMapRect rect);
+
+#pragma mark - Free
+
 MI_EXTERN void MIQuadTreeFree(MIQuadTreeRef tree);
 
+#pragma mark - Data Access
+
+MI_EXTERN unsigned int MIQuadTreeGetCount(MIQuadTreeRef tree);
+MI_EXTERN MKMapPoint MIQuadTreeGetCentroid(MIQuadTreeRef tree);
+
+#pragma mark - Insertion
 /**
 * If point, presented in tree inserted - behaviour undefined
 */
 MI_EXTERN void MIQuadTreeInsertPoint(MIQuadTreeRef tree, MIPoint point);
 
+#pragma mark - Removal
 /**
 * If point, not presented in tree removed - behaviour undefined
 */
 MI_EXTERN void MIQuadTreeRemovePoint(MIQuadTreeRef tree, MIPoint point);
 MI_EXTERN void MIQuadTreeRemoveAllPoints(MIQuadTreeRef tree);
 
-MI_EXTERN void MIQuadTreeTraversLevelRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned char level, MITraverse *traverse);
+#pragma mark - Traversal
+
+MI_EXTERN void MIQuadTreeTraversLevelRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned int level, MITraverse *traverse);
 MI_EXTERN void MIQuadTreeTraversRectPoints(MIQuadTreeRef tree, MKMapRect rect, MITraverse *traverse);
 MI_EXTERN void MIQuadTreeTraversPoints(MIQuadTreeRef tree, MITraverse *traverse);
 
-MI_EXTERN bool MIQuadTreeIsDescendant(MIQuadTreeRef tree, MIQuadTreeRef root);
+#pragma mark - Checks
+
+MI_EXTERN bool MIQuadTreeIsDescendant(MIQuadTreeRef root, MIQuadTreeRef leaf);
 MI_EXTERN bool MIQuadTreeContainsPoint(MIQuadTreeRef node, MIPoint point);
 
 #endif

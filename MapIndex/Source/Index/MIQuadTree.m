@@ -133,6 +133,16 @@ MI_INLINE MIQuadTreeRef _MIQuadTreePointToLeaf(MIQuadTreeRef tree, MKMapPoint po
 	}
 }
 
+unsigned int MIQuadTreeGetCount(MIQuadTreeRef tree)
+{
+	return tree->count;
+}
+
+MKMapPoint MIQuadTreeGetCentroid(MIQuadTreeRef tree)
+{
+	return tree->centroid;
+}
+
 #pragma mark - Subdivide
 
 void _MIQuadTreeNodePullPoint(MIQuadTreeRef source, MIQuadTreeRef target)
@@ -250,7 +260,7 @@ void MIQuadTreeRemoveAllPoints(MIQuadTreeRef tree)
 
 #pragma mark - Traversing
 
-void MIQuadTreeTraversLevelRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned char level, MITraverse *traverse)
+void MIQuadTreeTraversLevelRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned int level, MITraverse *traverse)
 {
 	if (tree->count == 0 || !MKMapRectIntersectsRect(tree->rect, rect)) return;
 
@@ -327,15 +337,15 @@ void MIQuadTreeTraversPoints(MIQuadTreeRef tree, MITraverse *traverse)
 
 #pragma mark - Containment
 
-bool MIQuadTreeIsDescendant(MIQuadTreeRef tree, MIQuadTreeRef root)
+bool MIQuadTreeIsDescendant(MIQuadTreeRef root, MIQuadTreeRef leaf)
 {
-	if (!MKMapRectContainsRect(root->rect, tree->rect)) return false;
+	if (!MKMapRectContainsRect(root->rect, leaf->rect)) return false;
 
-	while (tree != NULL)
+	while (leaf != NULL)
 	{
-		if (tree == root) return true;
+		if (leaf == root) return true;
 
-		tree = tree->root;
+		leaf = leaf->root;
 	}
 
 	return false;
