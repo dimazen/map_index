@@ -1,0 +1,332 @@
+//
+//  QuadTreeNode.c
+//  SDMapView
+//
+//  Created by dshe on 04/14/13.
+//  Copyright (c) 2013 __MyCompanyName__. All rights reserved.
+//
+
+#import "MIQuadTree.h"
+
+const char _MIQuadTreePointsLimit = 1;
+
+struct MIQuadTree
+{
+	MIQuadTreeRef topLeftLeaf;
+	MIQuadTreeRef topRightLeaf;
+	MIQuadTreeRef bottomLeftLeaf;
+	MIQuadTreeRef bottomRightLeaf;
+
+	MKMapPoint centroid;
+	MKMapRect rect;
+
+	MIPointListRef pointList;
+	unsigned int count;
+
+	unsigned int level;
+
+	MIQuadTreeRef root;
+};
+
+#pragma mark - Creation
+
+MIQuadTreeRef _MIQuadTreeCreate(MIQuadTreeRef tree, MIQuadTreeRef root, MKMapRect rect, unsigned int level)
+{
+	tree->rect = rect;
+	tree->level = level;
+	tree->root = root;
+
+	return tree;
+}
+
+MIQuadTreeRef MIQuadTreeCreate(MKMapRect rect)
+{
+	MIQuadTreeRef node = malloc(sizeof(struct MIQuadTree));
+
+	node->topLeftLeaf = NULL;
+	node->topRightLeaf = NULL;
+	node->bottomLeftLeaf = NULL;
+	node->bottomRightLeaf = NULL;
+
+	node->rect = rect;
+	node->centroid = (MKMapPoint){0.0, 0.0};
+
+	node->pointList = NULL;
+	node->count = 0;
+
+	node->level = 0;
+
+	node->root = NULL;
+
+	return node;
+}
+
+#pragma mark - Free
+
+void _MIQuadTreeFree(MIQuadTreeRef tree)
+{
+	if (tree->topLeftLeaf != NULL)
+	{
+		_MIQuadTreeFree(tree->topLeftLeaf);
+		_MIQuadTreeFree(tree->topRightLeaf);
+		_MIQuadTreeFree(tree->bottomLeftLeaf);
+		_MIQuadTreeFree(tree->bottomRightLeaf);
+
+		free(tree->topLeftLeaf);
+
+		tree->topLeftLeaf = NULL;
+		tree->topRightLeaf = NULL;
+		tree->bottomLeftLeaf = NULL;
+		tree->bottomRightLeaf = NULL;
+	}
+
+	if (tree->pointList != NULL)
+	{
+		tree->pointList = MIPointListDeleteAll(tree->pointList);
+	}
+}
+
+void MIQuadTreeFree(MIQuadTreeRef tree)
+{
+	_MIQuadTreeFree(tree);
+
+	free(tree);
+}
+
+#pragma mark - Transformations
+
+MKMapRect _MIQuadTreeLeafRect(MIQuadTreeRef tree, char index)
+{
+	double halfWidth = tree->rect.size.width * 0.5;
+	double halfHeight = tree->rect.size.height * 0.5;
+
+	MKMapRect result = (MKMapRect){tree->rect.origin, halfWidth, halfHeight};
+	if ((index & 1) > 0)
+	{
+		result.origin.x += halfWidth;
+	}
+
+	if ((index & 2) > 0)
+	{
+		result.origin.y += halfHeight;
+	}
+
+	return result;
+}
+
+MI_INLINE MIQuadTreeRef _MIQuadTreePointToLeaf(MIQuadTreeRef tree, MKMapPoint point)
+{
+	MKMapPoint center = MKMapRectCenter(tree->rect);
+
+	if (point.x < center.x)
+	{
+		if (point.y < center.y) return tree->topLeftLeaf;
+
+		return tree->bottomLeftLeaf;
+	}
+	else
+	{
+		if (point.y < center.y) return tree->topRightLeaf;
+
+		return tree->bottomRightLeaf;
+	}
+}
+
+#pragma mark - Subdivide
+
+void _MIQuadTreeNodePullPoint(MIQuadTreeRef source, MIQuadTreeRef target)
+{
+	target->pointList = source->pointList;
+	source->pointList = NULL;
+
+	target->count = _MIQuadTreePointsLimit;
+}
+
+
+void _MIQuadTreeSubdivide(MIQuadTreeRef tree)
+{
+	static size_t leavesSize = sizeof(struct MIQuadTree) * 4;
+	void *leaves = malloc(leavesSize);
+	memset(leaves, 0, leavesSize);
+
+	unsigned int level = tree->level + 1;
+
+	tree->topLeftLeaf = _MIQuadTreeCreate(leaves, tree, _MIQuadTreeLeafRect(tree, 0), level);
+	tree->topRightLeaf = _MIQuadTreeCreate(leaves + sizeof(struct MIQuadTree), tree, _MIQuadTreeLeafRect(tree, 1), level);
+	tree->bottomLeftLeaf = _MIQuadTreeCreate(leaves + sizeof(struct MIQuadTree) * 2, tree, _MIQuadTreeLeafRect(tree, 2), level);
+	tree->bottomRightLeaf = _MIQuadTreeCreate(leaves + sizeof(struct MIQuadTree) * 3, tree, _MIQuadTreeLeafRect(tree, 3), level);
+}
+
+#pragma mark - Insertion
+
+void _MIQuadTreeInsertPoint(MIQuadTreeRef tree, MIPoint point)
+{
+	tree->count++;
+
+	tree->centroid.x += (point.x - tree->centroid.x) / tree->count;
+	tree->centroid.y += (point.y - tree->centroid.y) / tree->count;
+
+	if (tree->topLeftLeaf != NULL)
+	{
+		_MIQuadTreeInsertPoint(_MIQuadTreePointToLeaf(tree, (MKMapPoint){point.x, point.y}), point);
+
+		return;
+	}
+
+	if (_MIQuadTreePointsLimit < (tree->count) && tree->level < MIZoomDepth)
+	{
+		_MIQuadTreeSubdivide(tree);
+
+		if (tree->pointList != NULL)
+		{
+			_MIQuadTreeNodePullPoint(tree, _MIQuadTreePointToLeaf(tree, (MKMapPoint){tree->pointList->point.x, tree->pointList->point.y}));
+		}
+
+		_MIQuadTreeInsertPoint(_MIQuadTreePointToLeaf(tree, (MKMapPoint){point.x, point.y}), point);
+	}
+	else
+	{
+		tree->pointList = MIPointListCreate(point, tree->pointList);
+//		MICParameterAssert(tree->count == MIPointListCount(tree->pointList));
+	}
+}
+
+void MIQuadTreeInsertPoint(MIQuadTreeRef tree, MIPoint point)
+{
+	if (!MKMapRectContainsPoint(tree->rect, (MKMapPoint){point.x, point.y})) return;
+
+	_MIQuadTreeInsertPoint(tree, point);
+}
+
+#pragma mark - Remove
+
+void _MIQuadTreeRemovePoint(MIQuadTreeRef tree, MIPoint point)
+{
+//	MICParameterAssert((long long) tree->count - 1 >= 0);
+
+	tree->count--;
+
+	if (tree->count > 0)
+	{
+		tree->centroid.x -= (point.x - tree->centroid.x ) / tree->count;
+		tree->centroid.y -= (point.y - tree->centroid.y) / tree->count;
+	}
+	else
+	{
+		tree->centroid.x = 0.0;
+		tree->centroid.y = 0.0;
+
+		_MIQuadTreeFree(tree);
+
+		return;
+	}
+
+	if (tree->topLeftLeaf != nil)
+	{
+		_MIQuadTreeRemovePoint(_MIQuadTreePointToLeaf(tree, (MKMapPoint){point.x, point.y}), point);
+	}
+	else
+	{
+//		MICParameterAssert(MIPointListContains(tree->pointList, point.identifier));
+		tree->pointList = MIPointListDelete(tree->pointList, point.identifier);
+	}
+}
+
+void MIQuadTreeRemovePoint(MIQuadTreeRef tree, MIPoint point)
+{
+	if (tree->count == 0 || !MKMapRectContainsPoint(tree->rect, (MKMapPoint){point.x, point.y})) return;
+
+	_MIQuadTreeRemovePoint(tree, point);
+}
+
+void MIQuadTreeRemoveAllPoints(MIQuadTreeRef tree)
+{
+	_MIQuadTreeFree(tree);
+
+	tree->centroid = (MKMapPoint){0.0, 0.0};
+	tree->count = 0;
+}
+
+#pragma mark - Visiting
+
+void MIQuadTreeTraversRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned char traversLevel, MITraverseCallback callback, void *context)
+{
+	if (tree->count == 0 || !MKMapRectIntersectsRect(tree->rect, rect)) return;
+
+	if (tree->topLeftLeaf != NULL)
+	{
+		MIQuadTreeTraversRectPoints(tree->topLeftLeaf, rect, 0, callback, NULL);
+		MIQuadTreeTraversRectPoints(tree->topRightLeaf, rect, 0, callback, NULL);
+		MIQuadTreeTraversRectPoints(tree->bottomLeftLeaf, rect, 0, callback, NULL);
+		MIQuadTreeTraversRectPoints(tree->bottomRightLeaf, rect, 0, callback, NULL);
+	}
+	else
+	{
+		MIPointListRef head = tree->pointList;
+//		NSCParameterAssert(head != NULL);
+
+		while (head != NULL)
+		{
+			if (MKMapRectContainsPoint(tree->rect, (MKMapPoint){head->point.x, head->point.y}))
+			{
+				callback(head->point, context);
+				head = head->nextElement;
+			}
+		}
+	}
+}
+
+void MIQuadTreeTraversPoints(MIQuadTreeRef tree, MITraverseCallback callback)
+{
+	if (tree->count == 0) return;
+
+	if (tree->topLeftLeaf != NULL)
+	{
+		MIQuadTreeTraversPoints(tree->topLeftLeaf, callback);
+		MIQuadTreeTraversPoints(tree->topRightLeaf, callback);
+		MIQuadTreeTraversPoints(tree->bottomLeftLeaf, callback);
+		MIQuadTreeTraversPoints(tree->bottomRightLeaf, callback);
+	}
+	else
+	{
+		MIPointListRef listHead = tree->pointList;
+		while (listHead != NULL)
+		{
+			callback(listHead->point, NULL);
+			listHead = listHead->nextElement;
+		}
+	}
+}
+
+#pragma mark - Containment
+
+bool MIQuadTreeIsDescendant(MIQuadTreeRef tree, MIQuadTreeRef root)
+{
+	if (!MKMapRectContainsRect(root->rect, tree->rect)) return false;
+
+	while (tree != NULL)
+	{
+		if (tree == root) return true;
+
+		tree = tree->root;
+	}
+
+	return false;
+}
+
+bool _MIQuadTreeContainsPoint(MIQuadTreeRef node, MIPoint point)
+{
+	if (node->topLeftLeaf != NULL)
+	{
+		return _MIQuadTreeContainsPoint(_MIQuadTreePointToLeaf(node, (MKMapPoint){point.x, point.y}), point);
+	}
+
+	return MIPointListContains(node->pointList, point.identifier);
+}
+
+bool MIQuadTreeContainsPoint(MIQuadTreeRef node, MIPoint point)
+{
+	if (node->count == 0 || !MKMapRectContainsPoint(node->rect, (MKMapPoint){point.x, point.y})) return false;
+
+	return _MIQuadTreeContainsPoint(node, point);
+}

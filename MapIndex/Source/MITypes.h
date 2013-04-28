@@ -37,9 +37,11 @@ static const unsigned char MIZoomDepth = 20;
 #define MICParameterAssert(condition)
 #endif
 
+
+#import "MIPoint.h"
 /**
 * Traverse callback
 */
-typedef void (*MITraverseCallback)(MKMapPoint point, void *payload, void *context);
+typedef void (*MITraverseCallback)(MIPoint point, void *context);
 
 #endif

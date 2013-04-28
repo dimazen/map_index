@@ -6,9 +6,10 @@
 //  Copyright (c) 2013 dshe. All rights reserved.
 //
 
+#import <MapKit/MapKit.h>
 #import "ViewController.h"
 #import "Airport.h"
-#import "MIQuadTreeNode.h"
+#import "MIQuadTree.h"
 
 @interface ViewController ()
 
@@ -16,7 +17,7 @@
 
 @implementation ViewController
 
-void VCTraverseCallback(MKMapPoint point, void *payload, void *context)
+void VCTraverseCallback(MIPoint point, void *context)
 {
 
 }
@@ -27,28 +28,28 @@ void VCTraverseCallback(MKMapPoint point, void *payload, void *context)
     
     NSArray *airports = [Airport allAirports];
     
-	MIQuadTreeNodeRef root = MIQuadTreeNodeCreate(MKMapRectWorld);
+	MIQuadTreeRef root = MIQuadTreeCreate(MKMapRectWorld);
 	for (Airport *airport in airports)
 	{
-		MIQuadTreeNodeInsertPoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *) airport);
+		MIQuadTreeInsertPoint(root, MIPointMake(MKMapPointForCoordinate(airport.coordinate), (__bridge void *)airport));
 	}
     
-	MIQuadTreeNodeTraversAllPoints(root, VCTraverseCallback);
-	MIQuadTreeNodeTraversRectPoints(root, MKMapRectWorld, 0, VCTraverseCallback, NULL);
+//	MIQuadTreeTraversPoints(root, VCTraverseCallback);
+	MIQuadTreeTraversRectPoints(root, MKMapRectWorld, 0, VCTraverseCallback, NULL);
 
-	for (Airport *airport in airports)
-	{
-		NSCParameterAssert(MIQuadTreeNodeContainsPoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *) airport));
-	}
-
-	MIQuadTreeNodeRemoveAllPoints(root);
+//	for (Airport *airport in airports)
+//	{
+//		NSCParameterAssert(MIQuadTreeContainsPoint(root, MIPointMake(MKMapPointForCoordinate(airport.coordinate), (__bridge void *)airport)));
+//	}
+//
+//	MIQuadTreeRemoveAllPoints(root);
 
 //	for (Airport *airport in airports)
 //	{
 //		MIQuadTreeNodeRemovePoint(root, MKMapPointForCoordinate([airport coordinate]), (__bridge void *)airport);
 //	}
 
-	MIQuadTreeNodeFree(root);
+	MIQuadTreeFree(root);
 }
 
 - (void)didReceiveMemoryWarning

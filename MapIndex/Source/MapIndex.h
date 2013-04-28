@@ -10,8 +10,8 @@
 #define _MapIndex_
 
 #import "MIUtility.h"
-#import "MIQuadTreeNode.h"
-#import "MIListElement.h"
+#import "MIQuadTree.h"
+#import "MIPointList.h"
 #import "MIIndex.h"
 
 #endif
