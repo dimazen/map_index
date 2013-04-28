@@ -1,13 +1,12 @@
 //
 // Created by dmitriy on 14.04.13.
 //
-#import "MIIndex.h"
+#import "MIBackend.h"
+
 
 #import "MIQuadTree.h"
-#import "MITypes.h"
-#import "MIPoint.h"
 
-@interface MIIndex ()
+@interface MIBackend ()
 {
 	MIQuadTreeRef _tree;
 	NSMutableSet *_annotations;
@@ -15,7 +14,7 @@
 
 @end
 
-@implementation MIIndex
+@implementation MIBackend
 
 - (void)dealloc
 {
@@ -28,7 +27,6 @@
 	if (self != nil)
 	{
 		_tree = MIQuadTreeCreate(MKMapRectWorld);
-
 		_annotations = [NSMutableSet new];
 	}
 
@@ -65,10 +63,10 @@
 	for (id <MKAnnotation> annotation in annotations)
 	{
 		NSUInteger countBefore = _annotations.count;
-		[_annotations addObject:annotation];
+		[_annotations removeObject:annotation];
 		if (_annotations.count < countBefore )
 		{
-			MIQuadTreeInsertPoint(_tree, MIPointMake(MKMapPointForCoordinate([annotation coordinate]),(__bridge void *)annotation));
+			MIQuadTreeRemovePoint(_tree, MIPointMake(MKMapPointForCoordinate([annotation coordinate]),(__bridge void *)annotation));
 		}
 	}
 }
@@ -76,10 +74,10 @@
 - (void)removeAnnotation:(id <MKAnnotation>)annotation
 {
 	NSUInteger countBefore = _annotations.count;
-	[_annotations addObject:annotation];
+	[_annotations removeObject:annotation];
 	if (_annotations.count < countBefore )
 	{
-		MIQuadTreeInsertPoint(_tree, MIPointMake(MKMapPointForCoordinate([annotation coordinate]),(__bridge void *)annotation));
+		MIQuadTreeRemovePoint(_tree, MIPointMake(MKMapPointForCoordinate([annotation coordinate]),(__bridge void *)annotation));
 	}
 }
 
@@ -129,6 +127,7 @@ void _MIIndexAnnotationsInMapRectLevel(MIPoint point, MITraverseResultType resul
 		.callback = _MIIndexAnnotationsInMapRect,
 		.context = (__bridge void *)result,
 	};
+
 	MIQuadTreeTraversLevelRectPoints(_tree, mapRect, level, &traverse);
 
 	return result;

@@ -25,7 +25,6 @@ struct MIQuadTree
 	unsigned int count;
 
 	unsigned int level;
-
 	MIQuadTreeRef root;
 };
 
@@ -56,7 +55,6 @@ MIQuadTreeRef MIQuadTreeCreate(MKMapRect rect)
 	node->count = 0;
 
 	node->level = 0;
-
 	node->root = NULL;
 
 	return node;

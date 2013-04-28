@@ -9,15 +9,10 @@
 
 @implementation MITransactionFactory
 
-- (MITransaction *)transactionWithTarget:(NSSet *)target
-									 source:(NSSet *)source
-								targetLevel:(NSNumber *)targetLevel
-								sourceLevel:(NSNumber *)sourceLevel
+- (MITransaction *)transactionWithTarget:(NSSet *)target source:(NSSet *)source order:(NSComparisonResult)order
 {
-	NSParameterAssert(targetLevel != nil && sourceLevel != nil);
-
 	Class transactionClass = nil;
-	switch ([sourceLevel compare:targetLevel])
+	switch (order)
 	{
 		case NSOrderedSame:
 			transactionClass = [MIRegularTransaction class];
@@ -32,10 +27,7 @@
 			break;
 	}
 
-	return [[transactionClass alloc] initWithTarget:target
-											 source:source
-										targetLevel:targetLevel
-										sourceLevel:sourceLevel];
+	return [[transactionClass alloc] initWithTarget:target source:source order:order];
 }
 
 @end

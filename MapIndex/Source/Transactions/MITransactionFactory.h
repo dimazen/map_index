@@ -7,9 +7,6 @@
 
 @interface MITransactionFactory : NSObject
 
-- (MITransaction *)transactionWithTarget:(NSSet *)target
-								  source:(NSSet *)source
-							 targetLevel:(NSNumber *)targetLevel
-							 sourceLevel:(NSNumber *)sourceLevel;
+- (MITransaction *)transactionWithTarget:(NSSet *)target source:(NSSet *)source order:(NSComparisonResult)order;
 
 @end

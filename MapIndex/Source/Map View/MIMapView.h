@@ -5,7 +5,7 @@
 
 #import <MapKit/MKMapView.h>
 
-@class MITransactionFactory, MITransaction, MIIndex;
+@class MITransactionFactory, MITransaction, MIBackend;
 
 @interface MIMapView : MKMapView  <MKMapViewDelegate>
 {
@@ -15,24 +15,22 @@
 		BOOL delegateDidAddAnnotationViews : 1;
 		BOOL delegateRegionWillChangeAnimated : 1;
 		BOOL delegateRegionDidChangeAnimated : 1;
-
-		BOOL locked : 1;
 	} _flags;
 
 	__weak id <MKMapViewDelegate> _targetDelegate;
 
-	MIIndex *_index;
+	MIBackend *_backend;
 	NSUInteger _annotationsLevel;
+	BOOL _transactionLock;
+  	MITransaction *_transaction;
 
-  	MITransaction *_activeTransaction;
-
-	NSMutableArray *_modificationActions;
+	NSMutableArray *_deferredChanges;
 
 	__weak NSTimer *_updateAnnotationsTimer;
 	CFRunLoopObserverRef _loopObserver;
 }
 
-- (void)setUpdateAnnotationsIfNeeded;
+- (void)setUpdateVisibleAnnotations;
 
 @property (nonatomic, strong) MITransactionFactory *transactionFactory;
 

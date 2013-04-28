@@ -5,7 +5,7 @@
 
 @interface MIAscendingTransaction : MITransaction
 
-- (void)invokeWithMapView:(MIMapView *)mapView;
+- (void)perform;
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views;
 
 @end

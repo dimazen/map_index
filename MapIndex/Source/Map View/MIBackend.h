@@ -8,7 +8,7 @@
 
 @protocol MKAnnotation;
 
-@interface MIIndex : NSObject
+@interface MIBackend : NSObject
 
 - (void)addAnnotations:(NSArray *)annotations;
 - (void)addAnnotation:(id <MKAnnotation>)annotation;
@@ -17,6 +17,7 @@
 
 - (NSArray *)annotations;
 - (NSSet *)annotationsInMapRect:(MKMapRect)mapRect;
+
 - (NSSet *)annotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level;
 
 @end

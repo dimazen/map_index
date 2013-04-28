@@ -3,9 +3,9 @@
 //
 #import "MITransaction.h"
 
-@interface MIDescendingTransaction : MITransaction
+@interface MIRegularTransaction : MITransaction
 
-- (void)invokeWithMapView:(MIMapView *)mapView;
+- (void)perform;
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views;
 
 @end

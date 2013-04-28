@@ -5,30 +5,30 @@
 
 #import "MKMapView+SDTransforms.h"
 #import "MIMapView.h"
-#import "MIMapView+MITransaction.h"
-#import "MICluster.h"
+#import "MIAnnotation.h"
+#import "MITransaction+Subclass.h"
 
 const NSTimeInterval _SDAscendingMapTransactionDuration = 0.2;
 
 @implementation MIAscendingTransaction
 
-- (void)invokeWithMapView:(MIMapView *)mapView
+- (void)perform
 {
-	[mapView transaction:self removeAnnotations:[self.source allObjects]];
-	[mapView transaction:self addAnnotations:[self.target allObjects]];
+	[self removeAnnotations:[self.source allObjects]];
+	[self addAnnotations:[self.target allObjects]];
 }
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	[mapView lock:self];
+	[self lock];
 
 	[views enumerateObjectsUsingBlock:^(MKAnnotationView *view, NSUInteger idx, BOOL *stop)
 	{
 		id <MKAnnotation> target = view.annotation;
 
-		[self.source enumerateObjectsUsingBlock:^(MICluster *source, BOOL *s)
+		[self.source enumerateObjectsUsingBlock:^(MIAnnotation *source, BOOL *s)
 		{
-			if ([[source class] isSubclassOfClass:[MICluster class]] && [source contains:target])
+			if ([[source class] isSubclassOfClass:[MIAnnotation class]] && [source contains:target])
 			{
 				[view setTransform:[mapView translateTransformFrom:source.coordinate
 																to:target.coordinate
@@ -46,7 +46,7 @@ const NSTimeInterval _SDAscendingMapTransactionDuration = 0.2;
 
 	} completion:^(BOOL finished)
 	{
-		[mapView unlock:self];
+		[self unlock];
 	}];
 }
 

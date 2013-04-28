@@ -4,12 +4,12 @@
  * Date: 23.04.13 21:13
  */
 
+#import <MapKit/MKAnnotation.h>
+
 #import "MIAnnotation.h"
 #import "MIQuadTree.h"
 
-@interface MICluster : NSObject <MIAnnotation>
-
-- (id)initWithTree:(MIQuadTreeRef)tree;
+@interface MIAnnotation : NSObject <MKAnnotation>
 
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 

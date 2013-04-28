@@ -4,20 +4,20 @@
 
 #import "MIDescendingTransaction.h"
 #import "MIMapView.h"
-#import "MIMapView+MITransaction.h"
+#import "MITransaction+Subclass.h"
 
 const NSTimeInterval _SDDescendingMapTransactionDuration = 0.2;
 
 @implementation MIDescendingTransaction
 
-- (void)invokeWithMapView:(MIMapView *)mapView
+- (void)perform
 {
-	[mapView transaction:self addAnnotations:[self.target allObjects]];
+	[self addAnnotations:[self.target allObjects]];
 }
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	[mapView lock:self];
+	[self lock];
 
 	NSMutableSet *removingViews = [[NSMutableSet alloc] initWithCapacity:self.source.count];
 	[self.source enumerateObjectsUsingBlock:^(id <MKAnnotation> obj, BOOL *stop)
@@ -47,8 +47,8 @@ const NSTimeInterval _SDDescendingMapTransactionDuration = 0.2;
 			[view setAlpha:1.f];
 		}];
 
-		[mapView transaction:self removeAnnotations:[self.source allObjects]];
-		[mapView unlock:self];
+		[self removeAnnotations:[self.source allObjects]];
+		[self unlock];
 	}];
 }
 

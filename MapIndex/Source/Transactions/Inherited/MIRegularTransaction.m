@@ -4,19 +4,21 @@
 #import "MIRegularTransaction.h"
 
 #import "MIMapView+MITransaction.h"
+#import "MITransaction+Subclass.h"
 
 const NSTimeInterval _SDRegularMapTransactionDuration = 0.2;
 
 @implementation MIRegularTransaction
 
-- (void)invokeWithMapView:(MIMapView *)mapView
+- (void)perform
 {
-	[mapView transaction:self addAnnotations:[self.target allObjects]];
+	//fixme: if there will be no annotations to add, then source annotations wouldn't be remove
+	[self addAnnotations:[self.target allObjects]];
 }
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	[mapView lock:self];
+	[self lock];
 
 	[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
@@ -29,9 +31,8 @@ const NSTimeInterval _SDRegularMapTransactionDuration = 0.2;
 
 	} completion:^(BOOL finished)
 	{
-		[mapView transaction:self removeAnnotations:[self.source allObjects]];
-
-		[mapView unlock:self];
+		[self removeAnnotations:[self.source allObjects]];
+		[self unlock];
 	}];
 }
 

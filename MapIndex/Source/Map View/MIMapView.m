@@ -2,33 +2,36 @@
 // Created by dmitriy on 24.03.13.
 //
 #import "MIMapView.h"
-#import "MIMapView+MITransaction.h"
+
+#import "MIBackend.h"
 #import "MIAnnotation.h"
 
-#import <MapKit/MapKit.h>
-
+#import "MIMapView+MITransaction.h"
 #import "MITransactionFactory.h"
+#import "MITransaction+MIMapView.h"
+#import "MITransaction+Subclass.h"
+
+#import <MapKit/MKPinAnnotationView.h>
+#import <MapKit/MapKit.h>
 
 #import "NSInvocation+SDExtension.h"
 #import "NSMutableSet+SDCountTracking.h"
-#import "MIIndex.h"
-#import "MITypes.h"
 
 const double _MIWidthInPixels = 268435456.0;
 const double _MIMercatorRadius = _MIWidthInPixels / M_PI;
 const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
 
-typedef void (^_MIMapViewAction)(void);
+typedef void (^_MIMapViewChange)(void);
 
 @interface MIMapView ()
 
 - (void)initDelegateFlags;
 - (void)commonInitialization;
 
-- (void)requestModificationAction:(_MIMapViewAction)action;
-- (void)flushModificationActions;
+- (void)requestChange:(_MIMapViewChange)change;
+- (void)flushDeferredChanges;
 
-- (void)processTransaction:(MITransaction *)transaction;
+- (void)processTransaction:(MITransaction *)transaction level:(NSUInteger)level;
 
 - (void)updateAnnotations;
 
@@ -42,9 +45,9 @@ typedef void (^_MIMapViewAction)(void);
 
 - (void)commonInitialization
 {
-	_modificationActions = [NSMutableArray new];
+	_deferredChanges = [NSMutableArray new];
 
-	_index = [MIIndex new];
+	_backend = [MIBackend new];
 	_annotationsLevel = 0;
 
 	[self setTransactionFactory:[MITransactionFactory new]];
@@ -126,7 +129,6 @@ typedef void (^_MIMapViewAction)(void);
 	}
 }
 
-
 #pragma mark - Zoom Level
 
 - (NSUInteger)zoomLevel
@@ -138,7 +140,7 @@ typedef void (^_MIMapViewAction)(void);
 
 #pragma mark - Annotations Update Schedule
 
-- (void)setUpdateAnnotationsIfNeeded
+- (void)setUpdateVisibleAnnotations
 {
 	if (_loopObserver == NULL && ![self isLocked])
 	{
@@ -161,21 +163,11 @@ typedef void (^_MIMapViewAction)(void);
 
 #pragma mark - Annotations Update
 
-- (NSUInteger)annotationsLevel
-{
-	if (_annotationsLevel == NSUIntegerMax)
-	{
-		_annotationsLevel = [self zoomLevel];
-	}
-
-	return _annotationsLevel;
-}
-
 - (void)updateAnnotations
 {
-	MIAssert2(![self isLocked], @"%p: Attemp to update annotation with active transaction: %@", (__bridge void *)self, _activeTransaction);
+	MIAssert2(![self isLocked], @"%p: Attemp to update annotation with active transaction: %@", (__bridge void *)self, _transaction);
 
-	[self flushModificationActions];
+	[self flushDeferredChanges];
 
 	MKMapRect rect = self.visibleMapRect;
 	if (rect.origin.x + 10.0 > MKMapRectWorld.size.width)
@@ -183,56 +175,51 @@ typedef void (^_MIMapViewAction)(void);
 		rect.origin.x = 0.0;
 	}
 
-	NSMutableSet *sourceAnnotations = [[NSMutableSet alloc] initWithArray:[super annotations]];
-
+	NSMutableSet *source = [[NSMutableSet alloc] initWithArray:[super annotations]];
 	if (self.userLocation != nil)
 	{
-		[sourceAnnotations removeObject:self.userLocation];
+		[source removeObject:self.userLocation];
 	}
 
 	NSUInteger level = [self zoomLevel];
-	//fixme: fix me
-	__block NSSet *targetAnnotations = nil;//[_tree annotationsInRect:rect maxTraversalDepth:level];
 
-	[sourceAnnotations minusSet:targetAnnotations onCountChange:^(NSUInteger countBefore, NSUInteger countAfter)
+	__block NSSet *target = [_backend annotationsInMapRect:rect level:level];
+	[source minusSet:target onCountChange:^(NSUInteger countBefore, NSUInteger countAfter)
 	{
-		if ((countBefore - countAfter) == targetAnnotations.count)
+		if ((countBefore - countAfter) == target.count)
 		{
-			targetAnnotations = nil;
+			target = nil;
 		}
 	}];
 
-	MITransaction *transaction = [self.transactionFactory transactionWithTarget:targetAnnotations
-																		 source:sourceAnnotations
-																	targetLevel:@(level)
-																	sourceLevel:@(self.annotationsLevel)];
+	NSComparisonResult order = [@(level) compare:@(_annotationsLevel)];
+	MITransaction *transaction = [self.transactionFactory transactionWithTarget:target source:source order:order];
 
-	_activeTransaction = targetAnnotations.count > 0 ? transaction : nil;
-
-	[self processTransaction:transaction];
+	[self processTransaction:transaction level:level];
 }
 
 #pragma mark - Transactions
 
-- (void)processTransaction:(MITransaction *)transaction
+- (void)processTransaction:(MITransaction *)transaction level:(NSUInteger)level
 {
-	_activeTransaction = transaction;
-	_annotationsLevel = [transaction.targetLevel unsignedIntegerValue];
+	_transaction = transaction;
+	_annotationsLevel = level;
 
-	[transaction invokeWithMapView:self];
+	[_transaction setMapView:self];
+	[_transaction perform];
 
 	if (![self isLocked])
 	{
-		_activeTransaction = nil;
+		[_transaction setMapView:nil];
+		_transaction = nil;
 	}
 }
 
-
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	if (_activeTransaction != nil && [[views lastObject] annotation] != self.userLocation)
+	if (_transaction != nil && [[views lastObject] annotation] != self.userLocation)
 	{
-		[_activeTransaction mapView:self didAddAnnotationViews:views];
+		[_transaction mapView:self didAddAnnotationViews:views];
 	}
 
 	if (_flags.delegateDidAddAnnotationViews)
@@ -243,82 +230,74 @@ typedef void (^_MIMapViewAction)(void);
 
 #pragma mark - Modification Actions
 
-- (void)requestModificationAction:(_MIMapViewAction)action
+- (void)requestChange:(_MIMapViewChange)change
 {
-	if (_activeTransaction == nil)
+	if (_transaction == nil)
 	{
-		action();
+		change();
 
-		[self setUpdateAnnotationsIfNeeded];
+		[self setUpdateVisibleAnnotations];
 	}
 	else
 	{
-		[_modificationActions addObject:action];
+		[_deferredChanges addObject:change];
 	}
 }
 
-- (void)flushModificationActions
+- (void)flushDeferredChanges
 {
-	if (_modificationActions.count == 0) return;
+	if (_deferredChanges.count == 0) return;
 
-	NSRange processedRange = (NSRange){0, _modificationActions.count};
-	for (_MIMapViewAction action in [_modificationActions copy])
+	NSRange processedRange = (NSRange){0, _deferredChanges.count};
+	for (_MIMapViewChange action in [_deferredChanges copy])
 	{
 		action();
 	}
-	[_modificationActions removeObjectsInRange:processedRange];
+	[_deferredChanges removeObjectsInRange:processedRange];
 }
 
 #pragma mark - MKMapView Wrapper
 
 - (void)addAnnotations:(NSArray *)annotations
 {
-	[self requestModificationAction:^
+	[self requestChange:^
 	{
-		[_index addAnnotations:annotations];
+		[_backend addAnnotations:annotations];
 	}];
 }
 
 - (void)addAnnotation:(id <MKAnnotation>)annotation
 {
-	[self requestModificationAction:^
+	[self requestChange:^
 	{
-		// fixme: add required method to index
-//		[_tree insert:annotation];
+		[_backend addAnnotation:annotation];
 	}];
 }
 
 - (void)removeAnnotations:(NSArray *)annotations
 {
-	[self requestModificationAction:^
+	[self requestChange:^
 	{
-		for (id <MKAnnotation> annotation in annotations)
-		{
-			// fixme: add required method to index
-//			[_tree remove:annotation];
-		}
+		[_backend removeAnnotations:annotations];
 	}];
 }
 
 - (void)removeAnnotation:(id <MKAnnotation>)annotation
 {
-	[self requestModificationAction:^
+	[self requestChange:^
 	{
-		// fixme: add required method to index
-//		[_tree remove:annotation];
+		[_backend removeAnnotation:annotation];
 	}];
 }
 
 - (NSSet *)annotationsInMapRect:(MKMapRect)mapRect
 {
-	return nil;
+	return [_backend annotationsInMapRect:mapRect];
 }
 
 - (NSArray *)annotations
 {
-	// fixme: add required method to index
-//	return [[_tree allAnnotations] allObjects];
-	return nil;
+	return [_backend annotations];
 }
 
 #pragma mark - MKMapViewDelegate
@@ -362,7 +341,7 @@ typedef void (^_MIMapViewAction)(void);
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-	NSInvocation *invocation = [NSInvocation invocationForTarget:self selector:@selector(setUpdateAnnotationsIfNeeded)];
+	NSInvocation *invocation = [NSInvocation invocationForTarget:self selector:@selector(setUpdateVisibleAnnotations)];
 
 	_updateAnnotationsTimer = [NSTimer scheduledTimerWithTimeInterval:_MIMapViewUpdateDelay
 														   invocation:invocation
