@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 __MyCompanyName__. All rights reserved.
 //
 
+#import <MapKit/MapKit.h>
 #import "MIQuadTree.h"
 
 const char _MIQuadTreePointsLimit = 1;
@@ -187,7 +188,7 @@ void _MIQuadTreeInsertPoint(MIQuadTreeRef tree, MIPoint point)
 	else
 	{
 		tree->pointList = MIPointListCreate(point, tree->pointList);
-//		MICParameterAssert(tree->count == MIPointListCount(tree->pointList));
+		MICParameterAssert(tree->count == MIPointListCount(tree->pointList));
 	}
 }
 
@@ -202,7 +203,7 @@ void MIQuadTreeInsertPoint(MIQuadTreeRef tree, MIPoint point)
 
 void _MIQuadTreeRemovePoint(MIQuadTreeRef tree, MIPoint point)
 {
-//	MICParameterAssert((long long) tree->count - 1 >= 0);
+	MICParameterAssert((long long) tree->count - 1 >= 0);
 
 	tree->count--;
 
@@ -227,7 +228,7 @@ void _MIQuadTreeRemovePoint(MIQuadTreeRef tree, MIPoint point)
 	}
 	else
 	{
-//		MICParameterAssert(MIPointListContains(tree->pointList, point.identifier));
+		MICParameterAssert(MIPointListContains(tree->pointList, point.identifier));
 		tree->pointList = MIPointListDelete(tree->pointList, point.identifier);
 	}
 }
@@ -247,54 +248,80 @@ void MIQuadTreeRemoveAllPoints(MIQuadTreeRef tree)
 	tree->count = 0;
 }
 
-#pragma mark - Visiting
+#pragma mark - Traversing
 
-void MIQuadTreeTraversRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned char traversLevel, MITraverseCallback callback, void *context)
+void MIQuadTreeTraversLevelRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned char level, MITraverse *traverse)
+{
+	if (tree->count == 0 || !MKMapRectIntersectsRect(tree->rect, rect)) return;
+
+	if (tree->topLeftLeaf != NULL && tree->level < level)
+	{
+		MIQuadTreeTraversLevelRectPoints(tree->topLeftLeaf, rect, level, traverse);
+		MIQuadTreeTraversLevelRectPoints(tree->topRightLeaf, rect, level, traverse);
+		MIQuadTreeTraversLevelRectPoints(tree->bottomLeftLeaf, rect, level, traverse);
+		MIQuadTreeTraversLevelRectPoints(tree->bottomRightLeaf, rect, level, traverse);
+
+		return;
+	}
+
+	if (tree->count > _MIQuadTreePointsLimit)
+	{
+		traverse->callback((MIPoint){tree->centroid.x, tree->centroid.y, tree}, MITraverseResultTree, traverse);
+	}
+	else if (MKMapRectContainsPoint(rect, (MKMapPoint){tree->pointList->point.x, tree->pointList->point.y}))
+	{
+		traverse->callback(tree->pointList->point, MITraverseResultPoint, traverse);
+	}
+}
+
+void MIQuadTreeTraversRectPoints(MIQuadTreeRef tree, MKMapRect rect, MITraverse *traverse)
 {
 	if (tree->count == 0 || !MKMapRectIntersectsRect(tree->rect, rect)) return;
 
 	if (tree->topLeftLeaf != NULL)
 	{
-		MIQuadTreeTraversRectPoints(tree->topLeftLeaf, rect, 0, callback, NULL);
-		MIQuadTreeTraversRectPoints(tree->topRightLeaf, rect, 0, callback, NULL);
-		MIQuadTreeTraversRectPoints(tree->bottomLeftLeaf, rect, 0, callback, NULL);
-		MIQuadTreeTraversRectPoints(tree->bottomRightLeaf, rect, 0, callback, NULL);
-	}
-	else
-	{
-		MIPointListRef head = tree->pointList;
-//		NSCParameterAssert(head != NULL);
+		MIQuadTreeTraversRectPoints(tree->topLeftLeaf, rect, traverse);
+		MIQuadTreeTraversRectPoints(tree->topRightLeaf, rect, traverse);
+		MIQuadTreeTraversRectPoints(tree->bottomLeftLeaf, rect, traverse);
+		MIQuadTreeTraversRectPoints(tree->bottomRightLeaf, rect, traverse);
 
-		while (head != NULL)
+		return;
+	}
+
+	MICParameterAssert(tree->pointList != NULL);
+
+	MIPointListRef head = tree->pointList;
+	while (head != NULL)
+	{
+		if (MKMapRectContainsPoint(tree->rect, (MKMapPoint){head->point.x, head->point.y}))
 		{
-			if (MKMapRectContainsPoint(tree->rect, (MKMapPoint){head->point.x, head->point.y}))
-			{
-				callback(head->point, context);
-				head = head->nextElement;
-			}
+			traverse->callback(head->point, MITraverseResultPoint, traverse);
+			head = head->nextElement;
 		}
 	}
 }
 
-void MIQuadTreeTraversPoints(MIQuadTreeRef tree, MITraverseCallback callback)
+void MIQuadTreeTraversPoints(MIQuadTreeRef tree, MITraverse *traverse)
 {
 	if (tree->count == 0) return;
 
 	if (tree->topLeftLeaf != NULL)
 	{
-		MIQuadTreeTraversPoints(tree->topLeftLeaf, callback);
-		MIQuadTreeTraversPoints(tree->topRightLeaf, callback);
-		MIQuadTreeTraversPoints(tree->bottomLeftLeaf, callback);
-		MIQuadTreeTraversPoints(tree->bottomRightLeaf, callback);
+		MIQuadTreeTraversPoints(tree->topLeftLeaf, traverse);
+		MIQuadTreeTraversPoints(tree->topRightLeaf, traverse);
+		MIQuadTreeTraversPoints(tree->bottomLeftLeaf, traverse);
+		MIQuadTreeTraversPoints(tree->bottomRightLeaf, traverse);
+
+		return;
 	}
-	else
+
+	MICParameterAssert(tree->pointList != NULL);
+
+	MIPointListRef head = tree->pointList;
+	while (head != NULL)
 	{
-		MIPointListRef listHead = tree->pointList;
-		while (listHead != NULL)
-		{
-			callback(listHead->point, NULL);
-			listHead = listHead->nextElement;
-		}
+		traverse->callback(head->point, MITraverseResultPoint, traverse);
+		head = head->nextElement;
 	}
 }
 

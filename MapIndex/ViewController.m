@@ -17,7 +17,7 @@
 
 @implementation ViewController
 
-void VCTraverseCallback(MIPoint point, void *context)
+void VCTraverseCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
 {
 
 }
@@ -33,9 +33,11 @@ void VCTraverseCallback(MIPoint point, void *context)
 	{
 		MIQuadTreeInsertPoint(root, MIPointMake(MKMapPointForCoordinate(airport.coordinate), (__bridge void *)airport));
 	}
-    
-//	MIQuadTreeTraversPoints(root, VCTraverseCallback);
-	MIQuadTreeTraversRectPoints(root, MKMapRectWorld, 0, VCTraverseCallback, NULL);
+
+	MITraverse traverse = {.callback = VCTraverseCallback, .context = (__bridge void *)self};
+	MIQuadTreeTraversRectPoints(root, MKMapRectWorld, &traverse);
+	MIQuadTreeTraversLevelRectPoints(root, MKMapRectWorld, 7, &traverse);
+	MIQuadTreeTraversPoints(root, &traverse);
 
 //	for (Airport *airport in airports)
 //	{

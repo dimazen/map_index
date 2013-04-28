@@ -4,9 +4,5 @@
 #import <Foundation/Foundation.h>
 
 @interface MIIndex : NSObject
-{
-
-	NSMutableSet *_annotations;
-}
 
 @end

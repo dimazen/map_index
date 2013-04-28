@@ -39,9 +39,24 @@ static const unsigned char MIZoomDepth = 20;
 
 
 #import "MIPoint.h"
+
 /**
 * Traverse callback
 */
-typedef void (*MITraverseCallback)(MIPoint point, void *context);
+typedef enum
+{
+	MITraverseResultPoint,
+	MITraverseResultTree
+} MITraverseResultType;
+
+typedef struct MITraverse MITraverse;
+
+typedef void (*MITraverseCallback)(MIPoint point, MITraverseResultType resultType, MITraverse *traverse);
+
+struct MITraverse
+{
+	MITraverseCallback callback;
+	void *context;
+};
 
 #endif
