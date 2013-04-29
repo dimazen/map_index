@@ -76,7 +76,7 @@
 {
 	if (_title == nil && _dataAvailable && _readAvailable)
 	{
-		_title = [[NSString alloc] initWithFormat:@"%@: %d", NSStringFromClass([self class]), _count];
+		_title = [[NSString alloc] initWithFormat:@"%@ cluster: %d", NSStringFromClass([self class]), _count];
 	}
 
 	return _title;
@@ -86,7 +86,7 @@
 {
 	if (_subtitle == nil && _dataAvailable && _readAvailable)
 	{
-		_subtitle = [[NSString alloc] initWithFormat:@"%.3f %.3f", _coordinate.latitude, _coordinate.longitude];
+		_subtitle = [[NSString alloc] initWithFormat:@"lat:%.6f lon:%.6f", _coordinate.latitude, _coordinate.longitude];
 	}
 
 	return _subtitle;

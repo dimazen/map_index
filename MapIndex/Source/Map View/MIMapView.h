@@ -21,7 +21,8 @@
 
 	MISpatialIndex *_spacialIndex;
 	NSUInteger _annotationsLevel;
-	BOOL _transactionLock;
+
+	int32_t _lockCount;
   	MITransaction *_transaction;
 
 	NSMutableArray *_deferredChanges;

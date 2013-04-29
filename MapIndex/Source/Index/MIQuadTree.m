@@ -154,9 +154,7 @@ void _MIQuadTreeNodePullPoint(MIQuadTreeRef source, MIQuadTreeRef target)
 
 void _MIQuadTreeSubdivide(MIQuadTreeRef tree)
 {
-	static size_t leavesSize = sizeof(struct MIQuadTree) * 4;
-	void *leaves = malloc(leavesSize);
-	memset(leaves, 0, leavesSize);
+	void *leaves = calloc(4, sizeof(struct MIQuadTree));
 
 	unsigned int level = tree->level + 1;
 

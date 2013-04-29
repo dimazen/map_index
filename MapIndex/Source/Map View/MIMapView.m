@@ -16,6 +16,8 @@
 #import "NSInvocation+SDExtension.h"
 #import "MIAnnotation+Package.h"
 
+#import <libkern/OSAtomic.h>
+
 const double _MIWidthInPixels = 134217728.0;
 const double _MIMercatorRadius = _MIWidthInPixels / M_PI;
 const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
@@ -23,6 +25,8 @@ const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
 typedef void (^_MIMapViewChange)(void);
 
 @interface MIMapView ()
+
+- (void)finalizeLoopObserver;
 
 - (void)initDelegateFlags;
 - (void)commonInitialization;
@@ -42,6 +46,11 @@ typedef void (^_MIMapViewChange)(void);
 @implementation MIMapView
 
 #pragma mark - Init
+
+- (void)dealloc
+{
+	[self finalizeLoopObserver];
+}
 
 - (void)commonInitialization
 {
@@ -140,16 +149,23 @@ typedef void (^_MIMapViewChange)(void);
 
 #pragma mark - Annotations Update Schedule
 
+- (void)finalizeLoopObserver
+{
+	if (_loopObserver != NULL)
+	{
+		CFRunLoopRemoveObserver(CFRunLoopGetCurrent(), _loopObserver, kCFRunLoopCommonModes);
+		CFRelease(_loopObserver);
+		_loopObserver = NULL;
+	}
+}
+
 - (void)setUpdateVisibleAnnotations
 {
 	if (_loopObserver == NULL && ![self isLocked])
 	{
 		void (^handler)(CFRunLoopObserverRef, CFRunLoopActivity) = ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity)
 		{
-			CFRunLoopRemoveObserver(CFRunLoopGetCurrent(), observer, kCFRunLoopCommonModes);
-			CFRelease(observer);
-			_loopObserver = NULL;
-
+			[self finalizeLoopObserver];
 			[self updateAnnotations];
 		};
 
@@ -331,10 +347,9 @@ typedef void (^_MIMapViewChange)(void);
 
 	if (view != nil) return view;
 
-	// default implementation
 	if (annotation == (id <MKAnnotation>)self.userLocation) return nil;
 
-	static NSString *identifier = @"annotation";
+	static NSString * const identifier = @"annotation";
 	view = [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
 	if (view == nil)
 	{
@@ -388,32 +403,33 @@ typedef void (^_MIMapViewChange)(void);
 
 - (void)lock:(MITransaction *)transaction
 {
-	MIAssert1(!_transactionLock, @"%p: Already locked", (__bridge void *)self);
+	MIAssert1(![self isLocked], @"%p: Already locked", (__bridge void *)self);
 	MIAssert1(_transaction != nil, @"%p: Invalid lock: nil transaction", (__bridge void *)self);
 	MIAssert3(_transaction == transaction, @"%p: Invalid lock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
 
-	_transactionLock = YES;
+	OSAtomicIncrement32(&_lockCount);
 }
 
 - (void)unlock:(MITransaction *)transaction
 {
-	MIAssert1(_transactionLock, @"%p: Already unlocked", (__bridge void *)self);
+	MIAssert1([self isLocked], @"%p: Already unlocked", (__bridge void *)self);
 	MIAssert1(_transaction != nil, @"%p: Invalid unlock: nil transaction", (__bridge void *)self);
 	MIAssert3(_transaction == transaction, @"%p: Invalid unlock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
 
-	[self finalizeTransaction:transaction];
-
-	_transactionLock = NO;
-
-	if (_deferredChanges.count > 0)
+	if (OSAtomicDecrement32(&_lockCount) == 0)
 	{
-		[self setUpdateVisibleAnnotations];
+		[self finalizeTransaction:transaction];
+
+		if (_deferredChanges.count > 0)
+		{
+			[self setUpdateVisibleAnnotations];
+		}
 	}
 }
 
 - (BOOL)isLocked
 {
-	return _transactionLock;
+	return _lockCount > 0;
 }
 
 #pragma mark - Transaction Actions

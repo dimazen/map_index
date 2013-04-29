@@ -8,7 +8,7 @@
 #import "MIAnnotation.h"
 #import "MITransaction+Subclass.h"
 
-const NSTimeInterval _SDAscendingMapTransactionDuration = 0.2;
+const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 
 @implementation MIAscendingTransaction
 
@@ -38,7 +38,7 @@ const NSTimeInterval _SDAscendingMapTransactionDuration = 0.2;
 //		}];
 //	}];
 //
-//	[UIView animateWithDuration:_SDAscendingMapTransactionDuration animations:^
+//	[UIView animateWithDuration:_MIAscendingTransactionDuration animations:^
 //	{
 //		[views enumerateObjectsUsingBlock:^(MKAnnotationView *view, NSUInteger idx, BOOL *stop)
 //		{

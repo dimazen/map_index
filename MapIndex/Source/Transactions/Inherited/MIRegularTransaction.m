@@ -5,36 +5,95 @@
 
 #import "MIMapView+MITransaction.h"
 #import "MITransaction+Subclass.h"
+#import "MITransaction+MIMapView.h"
 
-const NSTimeInterval _SDRegularMapTransactionDuration = 0.2;
+const NSTimeInterval _MIRegularTransactionDuration = 0.2;
+
+@interface MIRegularTransaction ()
+
+- (void)performAddAnimation:(NSArray *)views;
+- (void)performRemoveAnimation;
+
+@end
 
 @implementation MIRegularTransaction
 
-- (void)perform
+#pragma mark - Animation
+
+- (void)performRemoveAnimation
 {
-	//fixme: if there will be no annotations to add, then source annotations wouldn't be remove
-	[self addAnnotations:self.target];
+	NSMutableArray *views = [[NSMutableArray alloc] initWithCapacity:self.source.count];
+	for (id <MKAnnotation> annotation in self.source)
+	{
+		MKAnnotationView *annotationView = [self.mapView viewForAnnotation:annotation];
+		if (annotationView != nil)
+		{
+			[views addObject:annotationView];
+		}
+	}
+
+	if (views.count == 0)
+	{
+		[self removeAnnotations:self.source];
+
+		return;
+	}
+
+	[self lock];
+
+	[UIView animateWithDuration:_MIRegularTransactionDuration animations:^
+	{
+		[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
+
+	} completion:^(BOOL finished)
+	{
+		for (MKAnnotationView *annotationView in views)
+		{
+			[annotationView setAlpha:1.f];
+		}
+
+		[self removeAnnotations:self.source];
+		[self unlock];
+	}];
 }
 
-- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
+- (void)performAddAnimation:(NSArray *)views
 {
-	//fixme: write proper animation
 	[self lock];
 
 	[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
-	[UIView animateWithDuration:_SDRegularMapTransactionDuration animations:^
+	[UIView animateWithDuration:_MIRegularTransactionDuration animations:^
 	{
-		[views enumerateObjectsUsingBlock:^(UIView *view, NSUInteger idx, BOOL *stop)
+		for (MKAnnotationView *annotationView in views)
 		{
-			[view setAlpha:1.f];
-		}];
+			[annotationView setAlpha:1.f];
+		}
 
 	} completion:^(BOOL finished)
 	{
-		[self removeAnnotations:self.source];
 		[self unlock];
 	}];
+}
+
+#pragma mark - Invocation
+
+- (void)perform
+{
+	if (self.target.count > 0)
+	{
+		[self addAnnotations:self.target];
+	}
+	else if (self.source.count > 0)
+	{
+		[self performRemoveAnimation];
+	}
+}
+
+- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
+{
+	[self performRemoveAnimation];
+	[self performAddAnimation:views];
 }
 
 @end
