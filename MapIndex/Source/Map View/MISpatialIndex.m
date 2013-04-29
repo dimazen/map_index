@@ -15,7 +15,9 @@
 	NSMutableSet *_annotations;
 
 	NSMutableArray *_annotationsPool;
-	NSMutableSet *_requestContainer;
+
+	NSMutableSet *_clustersContainer;
+	NSMutableSet *_pointsContainer;
 }
 
 - (MIAnnotation *)dequeueAnnotation;
@@ -124,15 +126,15 @@ void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType
 	{
 		MIAnnotation *annotation = [self dequeueAnnotation];
 		[annotation setContent:point.identifier];
-		[self->_requestContainer addObject:annotation];
+		[self->_clustersContainer addObject:annotation];
 	}
 	else
 	{
-		[self->_requestContainer addObject:(__bridge id <MKAnnotation>)point.identifier];
+		[self->_pointsContainer addObject:(__bridge id <MKAnnotation>) point.identifier];
 	}
 }
 
-- (NSMutableSet *)requestAnnotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level
+- (void)annotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level callback:(void (^)(NSMutableSet *clusters, NSMutableSet *points))callback
 {
 	MITraverse traverse =
 	{
@@ -140,14 +142,17 @@ void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType
 		.context = (__bridge void *)self,
 	};
 
-	NSMutableSet *result = [NSMutableSet new];
-	_requestContainer = result;
+	NSMutableSet *clustersContainer = [NSMutableSet new];
+	_clustersContainer = clustersContainer;
+	NSMutableSet *pointsContainer = [NSMutableSet new];
+	_pointsContainer = pointsContainer;
 
 	MIQuadTreeTraversLevelRectPoints(_tree, mapRect, level, &traverse);
 
-	_requestContainer = nil;
+	_clustersContainer = nil;
+	_pointsContainer = nil;
 
-	return result;
+	callback(clustersContainer, pointsContainer);
 }
 
 #pragma mark - Pool

@@ -20,7 +20,6 @@
 	NSMutableSet *_annotations;
 
 	BOOL _dataAvailable;
-	BOOL _readAvailable;
 }
 
 @property (nonatomic, assign) MIQuadTreeRef content;
@@ -173,14 +172,14 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 	}
 }
 
+- (void)setReadAvailable:(BOOL)readAvailable
+{
+	_readAvailable = readAvailable & _dataAvailable;
+}
+
 - (BOOL)dataAvailable
 {
 	return _dataAvailable;
-}
-
-- (BOOL)readAvailable
-{
-	return _readAvailable;
 }
 
 @end

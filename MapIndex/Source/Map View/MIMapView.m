@@ -37,6 +37,8 @@ typedef void (^_MIMapViewChange)(void);
 - (void)processTransaction:(MITransaction *)transaction level:(NSUInteger)level;
 - (void)finalizeTransaction:(MITransaction *)transaction;
 
+- (MKMapRect)updateAnnotationsRect;
+- (void)prepareAnnotationsUpdate;
 - (void)updateAnnotations;
 
 @property (nonatomic, readonly) NSUInteger zoomLevel;
@@ -58,6 +60,9 @@ typedef void (^_MIMapViewChange)(void);
 
 	_spacialIndex = [MISpatialIndex new];
 	_annotationsLevel = 0;
+	_clusters = [NSMutableSet new];
+
+	_flags.removalHandled = YES;
 
 	[self setTransactionFactory:[MITransactionFactory new]];
 
@@ -179,21 +184,47 @@ typedef void (^_MIMapViewChange)(void);
 
 #pragma mark - Annotations Update
 
-- (void)updateAnnotations
+- (MKMapRect)updateAnnotationsRect
 {
-	MIAssert2(![self isLocked], @"%p: Attemp to update annotation with active transaction: %@", (__bridge void *)self, _transaction);
-
-	[self flushDeferredChanges];
-
 	MKMapRect rect = self.visibleMapRect;
 	if (rect.origin.x + 10.0 > MKMapRectWorld.size.width)
 	{
 		rect.origin.x = 0.0;
 	}
 
+	return rect;
+}
+
+- (void)prepareAnnotationsUpdate
+{
+	[self flushDeferredChanges];
+
+	if (!_flags.removalHandled)
+	{
+		_flags.removalHandled = YES;
+		[_clusters makeObjectsPerformSelector:@selector(setReadAvailable:) withObject:nil];
+	}
+}
+
+- (void)updateAnnotations
+{
+	MIAssert2(![self isLocked], @"%p: Attemp to update annotation with active transaction: %@", (__bridge void *)self, _transaction);
+
+	[self prepareAnnotationsUpdate];
+
 	NSUInteger level = [self zoomLevel];
 
-	NSMutableSet *target = [_spacialIndex requestAnnotationsInMapRect:rect level:level];
+	__block NSMutableSet *target = [NSMutableSet new];
+	[_spacialIndex annotationsInMapRect:[self updateAnnotationsRect]
+								  level:level
+							   callback:^(NSMutableSet *clusters, NSMutableSet *points)
+	{
+		[_clusters setSet:clusters];
+
+		[clusters unionSet:points];
+		target = clusters;
+	}];
+
 	NSMutableSet *source = [[NSMutableSet alloc] initWithArray:[super annotations]];
 	if (self.userLocation != nil)
 	{
@@ -202,11 +233,6 @@ typedef void (^_MIMapViewChange)(void);
 
 	for (MIAnnotation *sourceAnnotation in [source copy])
 	{
-		if ([sourceAnnotation class] == [MIAnnotation class])
-		{
-			[sourceAnnotation setReadAvailable:NO];
-		}
-
 		NSUInteger countBefore = target.count;
 		[target removeObject:sourceAnnotation];
 		if (target.count < countBefore)
@@ -217,7 +243,7 @@ typedef void (^_MIMapViewChange)(void);
 
 	MITransaction *transaction = [self.transactionFactory transactionWithTarget:[target allObjects]
 																		 source:[source allObjects]
-																		  order:[@(level) compare:@(_annotationsLevel)]];
+																		  order:[@(_annotationsLevel) compare:@(level)]];
 	[self processTransaction:transaction level:level];
 }
 
@@ -314,6 +340,7 @@ typedef void (^_MIMapViewChange)(void);
 	[self requestChange:^
 	{
 		[_spacialIndex removeAnnotations:annotations];
+		_flags.removalHandled = NO;
 	}];
 }
 
@@ -322,6 +349,7 @@ typedef void (^_MIMapViewChange)(void);
 	[self requestChange:^
 	{
 		[_spacialIndex removeAnnotation:annotation];
+		_flags.removalHandled = NO;
 	}];
 }
 
@@ -403,7 +431,6 @@ typedef void (^_MIMapViewChange)(void);
 
 - (void)lock:(MITransaction *)transaction
 {
-	MIAssert1(![self isLocked], @"%p: Already locked", (__bridge void *)self);
 	MIAssert1(_transaction != nil, @"%p: Invalid lock: nil transaction", (__bridge void *)self);
 	MIAssert3(_transaction == transaction, @"%p: Invalid lock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
 

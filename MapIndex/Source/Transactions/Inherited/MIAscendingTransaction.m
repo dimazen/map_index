@@ -2,53 +2,51 @@
 // Created by dmitriy on 26.03.13.
 //
 #import "MIAscendingTransaction.h"
+#import "MIRegularTransaction+Protected.h"
 
-#import "MKMapView+SDTransforms.h"
-#import "MIMapView.h"
+#import "MKAnnotationView+MITranslation.h"
 #import "MIAnnotation.h"
+
 #import "MITransaction+Subclass.h"
+#import "MITransaction+MIMapView.h"
 
 const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 
 @implementation MIAscendingTransaction
 
-- (void)perform
+#pragma mark - Animation
+
+- (void)performAddAnimation:(NSArray *)views
 {
-	[self removeAnnotations:self.source];
-	[self addAnnotations:self.target];
+	[self lock];
+
+	for (MKAnnotationView *annotationView in views)
+	{
+		id <MKAnnotation> target = annotationView.annotation;
+
+		for (MIAnnotation *sourceAnnotation in self.source)
+		{
+			if ([sourceAnnotation class] == [MIAnnotation class] && [sourceAnnotation contains:target])
+			{
+				[annotationView applyTranslationFromAnnotation:sourceAnnotation inMapView:(id)self.mapView];
+			}
+		}
+	}
+
+	[UIView animateWithDuration:_MIAscendingTransactionDuration animations:^
+	{
+		for (MKAnnotationView *annotationView in views)
+		{
+			[annotationView applyDefaultTranslation];
+		}
+
+	} completion:^(BOOL finished)
+	{
+		[self unlock];
+	}];
 }
 
-- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
-{
-	//fixme: fixme
-//	[self lock];
-//
-//	[views enumerateObjectsUsingBlock:^(MKAnnotationView *view, NSUInteger idx, BOOL *stop)
-//	{
-//		id <MKAnnotation> target = view.annotation;
-//
-//		[self.source enumerateObjectsUsingBlock:^(MIAnnotation *source, BOOL *s)
-//		{
-//			if ([[source class] isSubclassOfClass:[MIAnnotation class]] && [source contains:target])
-//			{
-//				[view setTransform:[mapView translateTransformFrom:source.coordinate
-//																to:target.coordinate
-//														withinView:view.superview]];
-//			}
-//		}];
-//	}];
-//
-//	[UIView animateWithDuration:_MIAscendingTransactionDuration animations:^
-//	{
-//		[views enumerateObjectsUsingBlock:^(MKAnnotationView *view, NSUInteger idx, BOOL *stop)
-//		{
-//			[view setTransform:CGAffineTransformIdentity];
-//		}];
-//
-//	} completion:^(BOOL finished)
-//	{
-//		[self unlock];
-//	}];
-}
+#pragma mark - Invocation
+
 
 @end

@@ -2,6 +2,7 @@
 // Created by dmitriy on 26.03.13.
 //
 #import "MIRegularTransaction.h"
+#import "MIRegularTransaction+Protected.h"
 
 #import "MIMapView+MITransaction.h"
 #import "MITransaction+Subclass.h"
@@ -9,16 +10,31 @@
 
 const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
-@interface MIRegularTransaction ()
+@implementation MIRegularTransaction
 
-- (void)performAddAnimation:(NSArray *)views;
-- (void)performRemoveAnimation;
+#pragma mark - Invocation
+
+- (void)perform
+{
+	if (self.target.count > 0)
+	{
+		[self addAnnotations:self.target];
+	}
+	else if (self.source.count > 0)
+	{
+		[self performRemoveAnimation];
+	}
+}
+
+- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
+{
+	[self performRemoveAnimation];
+	[self performAddAnimation:views];
+}
 
 @end
 
-@implementation MIRegularTransaction
-
-#pragma mark - Animation
+@implementation MIRegularTransaction (Protected)
 
 - (void)performRemoveAnimation
 {
@@ -74,26 +90,6 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 	{
 		[self unlock];
 	}];
-}
-
-#pragma mark - Invocation
-
-- (void)perform
-{
-	if (self.target.count > 0)
-	{
-		[self addAnnotations:self.target];
-	}
-	else if (self.source.count > 0)
-	{
-		[self performRemoveAnimation];
-	}
-}
-
-- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
-{
-	[self performRemoveAnimation];
-	[self performAddAnimation:views];
 }
 
 @end

@@ -15,12 +15,15 @@
 		BOOL delegateDidAddAnnotationViews : 1;
 		BOOL delegateRegionWillChangeAnimated : 1;
 		BOOL delegateRegionDidChangeAnimated : 1;
+		BOOL removalHandled : 1;
 	} _flags;
 
 	__weak id <MKMapViewDelegate> _targetDelegate;
 
 	MISpatialIndex *_spacialIndex;
+
 	NSUInteger _annotationsLevel;
+	NSMutableSet *_clusters;
 
 	int32_t _lockCount;
   	MITransaction *_transaction;

@@ -18,7 +18,10 @@
 - (NSArray *)annotations;
 - (NSSet *)annotationsInMapRect:(MKMapRect)mapRect;
 
-- (NSMutableSet *)requestAnnotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level;
+
+- (void)annotationsInMapRect:(MKMapRect)mapRect
+					   level:(NSUInteger)level
+					callback:(void (^)(NSMutableSet *clusters, NSMutableSet *points))callback;
 - (void)revokeAnnotations:(NSArray *)annotations;
 
 @end
