@@ -8,7 +8,7 @@
 
 @protocol MKAnnotation;
 
-@interface MIBackend : NSObject
+@interface MISpatialIndex : NSObject
 
 - (void)addAnnotations:(NSArray *)annotations;
 - (void)addAnnotation:(id <MKAnnotation>)annotation;
@@ -18,6 +18,7 @@
 - (NSArray *)annotations;
 - (NSSet *)annotationsInMapRect:(MKMapRect)mapRect;
 
-- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level;
+- (NSMutableSet *)requestAnnotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level;
+- (void)revokeAnnotations:(NSSet *)annotations;
 
 @end

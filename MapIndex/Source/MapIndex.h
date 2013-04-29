@@ -12,6 +12,6 @@
 #import "MIUtility.h"
 #import "MIQuadTree.h"
 #import "MIPointList.h"
-#import "MIBackend.h"
+#import "MISpatialIndex.h"
 
 #endif

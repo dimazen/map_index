@@ -3,7 +3,7 @@
 //
 #import "MIMapView.h"
 
-#import "MIBackend.h"
+#import "MISpatialIndex.h"
 #import "MIAnnotation.h"
 
 #import "MIMapView+MITransaction.h"
@@ -12,10 +12,11 @@
 #import "MITransaction+Subclass.h"
 
 #import <MapKit/MKPinAnnotationView.h>
-#import <MapKit/MapKit.h>
+#import <functional>
 
 #import "NSInvocation+SDExtension.h"
 #import "NSMutableSet+SDCountTracking.h"
+#import "MIAnnotation+Package.h"
 
 const double _MIWidthInPixels = 268435456.0;
 const double _MIMercatorRadius = _MIWidthInPixels / M_PI;
@@ -32,6 +33,7 @@ typedef void (^_MIMapViewChange)(void);
 - (void)flushDeferredChanges;
 
 - (void)processTransaction:(MITransaction *)transaction level:(NSUInteger)level;
+- (void)finalizeTransaction:(MITransaction *)transaction;
 
 - (void)updateAnnotations;
 
@@ -47,7 +49,7 @@ typedef void (^_MIMapViewChange)(void);
 {
 	_deferredChanges = [NSMutableArray new];
 
-	_backend = [MIBackend new];
+	_spacialIndex = [MISpatialIndex new];
 	_annotationsLevel = 0;
 
 	[self setTransactionFactory:[MITransactionFactory new]];
@@ -183,7 +185,17 @@ typedef void (^_MIMapViewChange)(void);
 
 	NSUInteger level = [self zoomLevel];
 
-	__block NSSet *target = [_backend annotationsInMapRect:rect level:level];
+	NSMutableSet *target = [_spacialIndex requestAnnotationsInMapRect:rect level:level];
+	for (MIAnnotation *sourceAnnotation in source)
+	{
+		if ([sourceAnnotation class] == [MIAnnotation class])
+		{
+			[sourceAnnotation setReadAvailable:NO];
+		}
+
+		[target removeObject:sourceAnnotation];
+	}
+
 	[source minusSet:target onCountChange:^(NSUInteger countBefore, NSUInteger countAfter)
 	{
 		if ((countBefore - countAfter) == target.count)
@@ -205,14 +217,26 @@ typedef void (^_MIMapViewChange)(void);
 	_transaction = transaction;
 	_annotationsLevel = level;
 
-	[_transaction setMapView:self];
-	[_transaction perform];
+	[transaction setMapView:self];
+	[transaction perform];
 
 	if (![self isLocked])
 	{
-		[_transaction setMapView:nil];
-		_transaction = nil;
+		[self finalizeTransaction:transaction];
 	}
+}
+
+- (void)finalizeTransaction:(MITransaction *)transaction
+{
+	if ([self isLocked])
+	{
+		MIAssert3(_transaction == transaction, @"%p: Invalid finalize for transaction:%@ while active:%@", (__bridge void *)self, transaction, _transaction);
+	}
+
+	[_spacialIndex revokeAnnotations:transaction.source];
+
+	[_transaction setMapView:nil];
+	_transaction = nil;
 }
 
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
@@ -262,7 +286,7 @@ typedef void (^_MIMapViewChange)(void);
 {
 	[self requestChange:^
 	{
-		[_backend addAnnotations:annotations];
+		[_spacialIndex addAnnotations:annotations];
 	}];
 }
 
@@ -270,7 +294,7 @@ typedef void (^_MIMapViewChange)(void);
 {
 	[self requestChange:^
 	{
-		[_backend addAnnotation:annotation];
+		[_spacialIndex addAnnotation:annotation];
 	}];
 }
 
@@ -278,7 +302,7 @@ typedef void (^_MIMapViewChange)(void);
 {
 	[self requestChange:^
 	{
-		[_backend removeAnnotations:annotations];
+		[_spacialIndex removeAnnotations:annotations];
 	}];
 }
 
@@ -286,18 +310,18 @@ typedef void (^_MIMapViewChange)(void);
 {
 	[self requestChange:^
 	{
-		[_backend removeAnnotation:annotation];
+		[_spacialIndex removeAnnotation:annotation];
 	}];
 }
 
 - (NSSet *)annotationsInMapRect:(MKMapRect)mapRect
 {
-	return [_backend annotationsInMapRect:mapRect];
+	return [_spacialIndex annotationsInMapRect:mapRect];
 }
 
 - (NSArray *)annotations
 {
-	return [_backend annotations];
+	return [_spacialIndex annotations];
 }
 
 #pragma mark - MKMapViewDelegate
@@ -351,6 +375,86 @@ typedef void (^_MIMapViewChange)(void);
 	{
 		[_targetDelegate mapView:mapView regionDidChangeAnimated:animated];
 	}
+}
+
+@end
+
+
+
+@implementation MIMapView (MITransaction)
+
+#pragma mark - Lock
+
+- (void)lock:(MITransaction *)transaction
+{
+	MIAssert1(!_transactionLock, @"%p: Already locked", (__bridge void *)self);
+	MIAssert1(_transaction != nil, @"%p: Invalid lock: nil transaction", (__bridge void *)self);
+	MIAssert3(_transaction == transaction, @"%p: Invalid lock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
+
+	_transactionLock = YES;
+}
+
+- (void)unlock:(MITransaction *)transaction
+{
+	MIAssert1(_transactionLock, @"%p: Already unlocked", (__bridge void *)self);
+	MIAssert1(_transaction != nil, @"%p: Invalid unlock: nil transaction", (__bridge void *)self);
+	MIAssert3(_transaction == transaction, @"%p: Invalid unlock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
+
+	[self finalizeTransaction:transaction];
+
+	_transactionLock = NO;
+
+	if (_deferredChanges.count > 0)
+	{
+		[self setUpdateVisibleAnnotations];
+	}
+}
+
+- (BOOL)isLocked
+{
+	return _transactionLock;
+}
+
+#pragma mark - Transaction Actions
+
+- (void)transaction:(MITransaction *)transaction addAnnotation:(id <MKAnnotation>)annotation
+{
+	if (annotation != nil)
+	{
+		MIAssert3(_transaction == transaction, @"%p: Invalid change transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
+	}
+
+	[super addAnnotation:annotation];
+}
+
+- (void)transaction:(MITransaction *)transaction addAnnotations:(NSArray *)annotations
+{
+	if (annotations.count > 0)
+	{
+		MIAssert3(_transaction == transaction, @"%p: Invalid change transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
+	}
+
+	[super addAnnotations:annotations];
+}
+
+- (void)transaction:(MITransaction *)transaction removeAnnotation:(id <MKAnnotation>)annotation
+{
+	if (annotation != nil)
+	{
+		MIAssert3(_transaction == transaction, @"%p: Invalid change transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
+	}
+
+	[super removeAnnotation:annotation];
+}
+
+- (void)transaction:(MITransaction *)transaction removeAnnotations:(NSArray *)annotations
+{
+	if (annotations.count > 0)
+	{
+		MIAssert3(_transaction == transaction, @"%p: Invalid change transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
+	}
+
+	[super removeAnnotations:annotations];
 }
 
 @end

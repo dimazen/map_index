@@ -151,17 +151,24 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 
 - (void)setContent:(MIQuadTreeRef)content
 {
+	if (_content == content) return;
+
 	_content = content;
+
+	_cachedAnnotations = nil;
 
 	if (_content != NULL)
 	{
 		_count = MIQuadTreeGetCount(_content);
 		_coordinate = MKCoordinateForMapPoint(MIQuadTreeGetCentroid(_content));
+
 		_dataAvailable = YES;
+		_readAvailable = YES;
 	}
 	else
 	{
 		_dataAvailable = NO;
+		_readAvailable = NO;
 	}
 }
 

@@ -1,20 +1,28 @@
 //
 // Created by dmitriy on 14.04.13.
 //
-#import "MIBackend.h"
+#import "MISpatialIndex.h"
 
 
 #import "MIQuadTree.h"
+#import "MIPoint.h"
+#import "MIAnnotation.h"
+#import "MIAnnotation+Package.h"
 
-@interface MIBackend ()
+@interface MISpatialIndex ()
 {
 	MIQuadTreeRef _tree;
 	NSMutableSet *_annotations;
+
+	NSMutableArray *_annotationsPool;
+	NSMutableSet *_requestContainer;
 }
+
+- (MIAnnotation *)dequeueAnnotation;
 
 @end
 
-@implementation MIBackend
+@implementation MISpatialIndex
 
 - (void)dealloc
 {
@@ -28,6 +36,7 @@
 	{
 		_tree = MIQuadTreeCreate(MKMapRectWorld);
 		_annotations = [NSMutableSet new];
+		_annotationsPool = [NSMutableArray new];
 	}
 
 	return self;
@@ -88,7 +97,7 @@
 	return [_annotations allObjects];
 }
 
-void _MIIndexAnnotationsInMapRect(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
+void _MISpacialIndexAnnotationsCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
 {
 	[(__bridge NSMutableSet *)traverse->context addObject:(__bridge id <MKAnnotation>)point.identifier];
 }
@@ -98,7 +107,7 @@ void _MIIndexAnnotationsInMapRect(MIPoint point, MITraverseResultType resultType
 	NSMutableSet *result = [NSMutableSet new];
 	MITraverse traverse =
 	{
-		.callback = _MIIndexAnnotationsInMapRect,
+		.callback = _MISpacialIndexAnnotationsCallback,
 		.context = (__bridge void *)result,
 	};
 	MIQuadTreeTraversRectPoints(_tree, mapRect, &traverse);
@@ -106,31 +115,66 @@ void _MIIndexAnnotationsInMapRect(MIPoint point, MITraverseResultType resultType
 	return result;
 }
 
-void _MIIndexAnnotationsInMapRectLevel(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
+#pragma mark - Level Annotations Access
+
+void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
 {
-	NSMutableSet *set = (__bridge NSMutableSet *)traverse->context;
+	MISpatialIndex *self = (__bridge MISpatialIndex *)traverse->context;
 	if (resultType == MITraverseResultTree)
 	{
-
+		MIAnnotation *annotation = [self dequeueAnnotation];
+		[annotation setContent:point.identifier];
+		[self->_requestContainer addObject:annotation];
 	}
 	else
 	{
-
+		[self->_requestContainer addObject:(__bridge id <MKAnnotation>)point.identifier];
 	}
 }
 
-- (NSSet *)annotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level
+- (NSMutableSet *)requestAnnotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level
 {
-	NSMutableSet *result = [NSMutableSet new];
 	MITraverse traverse =
 	{
-		.callback = _MIIndexAnnotationsInMapRect,
-		.context = (__bridge void *)result,
+		.callback = _MISpacialIndexLevelAnnotationsCallback,
+		.context = (__bridge void *)self,
 	};
+
+	NSMutableSet *result = [NSMutableSet new];
+	_requestContainer = result;
 
 	MIQuadTreeTraversLevelRectPoints(_tree, mapRect, level, &traverse);
 
+	_requestContainer = nil;
+
 	return result;
+}
+
+#pragma mark - Pool
+
+- (MIAnnotation *)dequeueAnnotation
+{
+	if (_annotationsPool.count > 0)
+	{
+		MIAnnotation *annotation = [_annotationsPool lastObject];
+		[_annotationsPool removeLastObject];
+
+		return annotation;
+	}
+
+	return [MIAnnotation new];
+}
+
+- (void)revokeAnnotations:(NSSet *)annotations
+{
+	for (MIAnnotation *annotation in annotations)
+	{
+		if ([annotation class] == [self class])
+		{
+			[annotation prepareForReuse];
+			[_annotationsPool addObject:annotation];
+		}
+	}
 }
 
 @end

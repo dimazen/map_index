@@ -5,7 +5,7 @@
 
 #import <MapKit/MKMapView.h>
 
-@class MITransactionFactory, MITransaction, MIBackend;
+@class MITransactionFactory, MITransaction, MISpatialIndex;
 
 @interface MIMapView : MKMapView  <MKMapViewDelegate>
 {
@@ -19,7 +19,7 @@
 
 	__weak id <MKMapViewDelegate> _targetDelegate;
 
-	MIBackend *_backend;
+	MISpatialIndex *_spacialIndex;
 	NSUInteger _annotationsLevel;
 	BOOL _transactionLock;
   	MITransaction *_transaction;

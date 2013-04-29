@@ -19,7 +19,7 @@
 		69ED735450CF50C09569A078 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69ED7781C6C99234A5CA9205 /* CoreGraphics.framework */; };
 		69ED7390030F32E9E4333304 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 69ED7D90A5F6D3EBED2ED242 /* Default-568h@2x.png */; };
 		69ED74E54088EA1CBBC6C147 /* NSMutableDictionary+SetInsertion.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED737DAFB5A2A61FA935AC /* NSMutableDictionary+SetInsertion.m */; };
-		69ED74EBF4855D54B5E93055 /* MIBackend.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED72E85E58EE7A0B707EF5 /* MIBackend.m */; };
+		69ED74EBF4855D54B5E93055 /* MISpatialIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED72E85E58EE7A0B707EF5 /* MISpatialIndex.m */; };
 		69ED750150BDB4E987CDDCB8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69ED7635C202B6EC70A91504 /* UIKit.framework */; };
 		69ED75A06D8A0461DE86771D /* MKMapView+SDTransforms.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED799B7445925989764621 /* MKMapView+SDTransforms.m */; };
 		69ED7619FD2D1902F5BD6F24 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 69ED7E11FD3906E4FC0A4303 /* Default.png */; };
@@ -29,7 +29,6 @@
 		69ED776C89A658A0CDF7FAD6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69ED713407A54249AF2D6F8C /* Foundation.framework */; };
 		69ED77C1DE5990073EAAF637 /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69ED7722EFFD969CB7CA4EBB /* ViewController_iPad.xib */; };
 		69ED77DE199BF9E47E8E1A74 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED73AB70D1D5BB010436B3 /* AppDelegate.m */; };
-		69ED77F357AEC878562A4B46 /* MIMapView+MITransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED7CE9348DA922E86CA0E1 /* MIMapView+MITransaction.m */; };
 		69ED7AABAD2CC0F1777C8C37 /* MIRegularTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED73BD914CD5C714C610A8 /* MIRegularTransaction.m */; };
 		69ED7AD6F418406CCE3FDA7A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED7FD9EFDB0538AC37AA36 /* main.m */; };
 		69ED7B253A3B16E6706B4B7F /* MIMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED7D2529CC0918A667DF3C /* MIMapView.m */; };
@@ -54,7 +53,7 @@
 		69ED7274B9A51EE2646F4032 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		69ED72A9BBF3B26263137EAA /* MIAscendingTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIAscendingTransaction.h; sourceTree = "<group>"; };
 		69ED72B5A0736A56F487331A /* MIDescendingTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDescendingTransaction.h; sourceTree = "<group>"; };
-		69ED72E85E58EE7A0B707EF5 /* MIBackend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIBackend.m; sourceTree = "<group>"; };
+		69ED72E85E58EE7A0B707EF5 /* MISpatialIndex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MISpatialIndex.m; sourceTree = "<group>"; };
 		69ED72E8BACB416CF3CA7DC4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		69ED7304BB36CDA6D5170DBC /* MapIndex-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = "MapIndex-Info.plist"; sourceTree = "<group>"; };
 		69ED737DAFB5A2A61FA935AC /* NSMutableDictionary+SetInsertion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+SetInsertion.m"; sourceTree = "<group>"; };
@@ -77,7 +76,7 @@
 		69ED7935E4CD1329E30C19C3 /* MIPointList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIPointList.h; sourceTree = "<group>"; };
 		69ED7957761074DA6D44F541 /* MITypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITypes.h; sourceTree = "<group>"; };
 		69ED799B7445925989764621 /* MKMapView+SDTransforms.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKMapView+SDTransforms.m"; sourceTree = "<group>"; };
-		69ED799CE4B6A06CFB6FE26C /* MIBackend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIBackend.h; sourceTree = "<group>"; };
+		69ED799CE4B6A06CFB6FE26C /* MISpatialIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MISpatialIndex.h; sourceTree = "<group>"; };
 		69ED7A1C9F7B99F0B52DE014 /* MIMapView+MITransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MIMapView+MITransaction.h"; sourceTree = "<group>"; };
 		69ED7ACFEE0917A4FF8B64C0 /* MITransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITransaction.h; sourceTree = "<group>"; };
 		69ED7AD7E5AFB75D5D69D39D /* MIQuadTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIQuadTree.h; sourceTree = "<group>"; };
@@ -89,7 +88,6 @@
 		69ED7CADA671580977550D56 /* MapIndex-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MapIndex-Prefix.pch"; sourceTree = "<group>"; };
 		69ED7CAF2332A255279DADE0 /* MIAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIAnnotation.h; sourceTree = "<group>"; };
 		69ED7CD1532159A66E70F4F8 /* MIRegularTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIRegularTransaction.h; sourceTree = "<group>"; };
-		69ED7CE9348DA922E86CA0E1 /* MIMapView+MITransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MIMapView+MITransaction.m"; sourceTree = "<group>"; };
 		69ED7D2529CC0918A667DF3C /* MIMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIMapView.m; sourceTree = "<group>"; };
 		69ED7D60FC166DD825E4B6FC /* MIAnnotation+Package.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MIAnnotation+Package.h"; sourceTree = "<group>"; };
 		69ED7D8ED150B33AFC3E0630 /* NSValue+CLLocationCoordinate2D.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSValue+CLLocationCoordinate2D.m"; sourceTree = "<group>"; };
@@ -182,10 +180,9 @@
 			children = (
 				69ED7743248D76662096EDDE /* MIMapView.h */,
 				69ED7D2529CC0918A667DF3C /* MIMapView.m */,
-				69ED7CE9348DA922E86CA0E1 /* MIMapView+MITransaction.m */,
 				69ED7A1C9F7B99F0B52DE014 /* MIMapView+MITransaction.h */,
-				69ED799CE4B6A06CFB6FE26C /* MIBackend.h */,
-				69ED72E85E58EE7A0B707EF5 /* MIBackend.m */,
+				69ED799CE4B6A06CFB6FE26C /* MISpatialIndex.h */,
+				69ED72E85E58EE7A0B707EF5 /* MISpatialIndex.m */,
 			);
 			path = "Map View";
 			sourceTree = "<group>";
@@ -364,8 +361,7 @@
 				69ED706915007AEF794490CB /* MIAscendingTransaction.m in Sources */,
 				69ED7C213C9AF61C24B1C3C0 /* MIDescendingTransaction.m in Sources */,
 				69ED7AABAD2CC0F1777C8C37 /* MIRegularTransaction.m in Sources */,
-				69ED77F357AEC878562A4B46 /* MIMapView+MITransaction.m in Sources */,
-				69ED74EBF4855D54B5E93055 /* MIBackend.m in Sources */,
+				69ED74EBF4855D54B5E93055 /* MISpatialIndex.m in Sources */,
 				69ED705C3029606FC8D8E0B1 /* MIAnnotation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
