@@ -12,8 +12,12 @@
 	CLLocationCoordinate2D _coordinate;
 
 	MIQuadTreeRef _content;
+
 	NSUInteger _count;
-	NSMutableSet *_cachedAnnotations;
+
+	NSString *_title;
+	NSString *_subtitle;
+	NSMutableSet *_annotations;
 
 	BOOL _dataAvailable;
 	BOOL _readAvailable;
@@ -52,11 +56,13 @@
 	return self;
 }
 
-#pragma mark - Observer
+#pragma mark - Memory Warning
 
 - (void)didReceiveMemoryWarning
 {
-	_cachedAnnotations = nil;
+	_annotations = nil;
+	_title = nil;
+	_subtitle = nil;
 }
 
 #pragma mark - MKAnnotation
@@ -64,6 +70,26 @@
 - (CLLocationCoordinate2D)coordinate
 {
 	return _coordinate;
+}
+
+- (NSString *)title
+{
+	if (_title == nil && _dataAvailable && _readAvailable)
+	{
+		_title = [[NSString alloc] initWithFormat:@"%@: %d", NSStringFromClass([self class]), _count];
+	}
+
+	return _title;
+}
+
+- (NSString *)subtitle
+{
+	if (_subtitle == nil && _dataAvailable && _readAvailable)
+	{
+		_subtitle = [[NSString alloc] initWithFormat:@"%.3f %.3f", _coordinate.latitude, _coordinate.longitude];
+	}
+
+	return _subtitle;
 }
 
 #pragma mark - MIAnnotation
@@ -85,8 +111,6 @@
 	return MIQuadTreeContainsPoint(_content, MIPointMake(MKMapPointForCoordinate([annotation coordinate]), (__bridge void *)annotation));
 }
 
-#pragma mark - Annotations Retrieving
-
 void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
 {
 	[((__bridge NSMutableSet *) traverse->context) addObject:(__bridge id <MKAnnotation>)point.identifier];
@@ -94,25 +118,35 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 
 - (NSSet *)allAnnotations
 {
-	if (_cachedAnnotations == nil && _dataAvailable && _readAvailable)
+	if (_annotations == nil && _dataAvailable && _readAvailable)
 	{
-		_cachedAnnotations = [[NSMutableSet alloc] initWithCapacity:_count];
+		_annotations = [[NSMutableSet alloc] initWithCapacity:_count];
 
 		MITraverse traverse =
 		{
 			.callback = _MIAnnotationTraversCallback,
-			.context = (__bridge void *)_cachedAnnotations,
+			.context = (__bridge void *) _annotations,
 		};
 		MIQuadTreeTraversPoints(_content, &traverse);
 	}
 
-	return _cachedAnnotations;
+	return _annotations;
 }
 
-#pragma mark - Properties
+#pragma mark - Equality
 
+- (BOOL)isEqual:(id)object
+{
+	return [self class] == [object class] &&
+		self->_content == ((MIAnnotation *)object)->_content;
+}
 
-#pragma mark - Content
+- (NSUInteger)hash
+{
+	return (NSUInteger)_content;
+}
+
+#pragma mark - Properties & Flags
 
 - (void)setContent:(MIQuadTreeRef)content
 {
@@ -120,7 +154,9 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 
 	_content = content;
 
-	_cachedAnnotations = nil;
+	_annotations = nil;
+	_title = nil;
+	_subtitle = nil;
 
 	if (_content != NULL)
 	{
@@ -152,20 +188,6 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 @implementation MIAnnotation (Package)
 
 @dynamic content, dataAvailable, readAvailable;
-
-#pragma mark - Init
-
-- (id)initWithContent:(MIQuadTreeRef)content
-{
-	self = [self init];
-	if (self != nil)
-	{
-		[self setContent:content];
-	}
-
-	return self;
-}
-#pragma mark - Reuse
 
 - (void)prepareForReuse
 {

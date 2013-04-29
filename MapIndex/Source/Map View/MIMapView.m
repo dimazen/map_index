@@ -16,7 +16,7 @@
 #import "NSInvocation+SDExtension.h"
 #import "MIAnnotation+Package.h"
 
-const double _MIWidthInPixels = 268435456.0;
+const double _MIWidthInPixels = 134217728.0;
 const double _MIMercatorRadius = _MIWidthInPixels / M_PI;
 const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
 
@@ -332,18 +332,24 @@ typedef void (^_MIMapViewChange)(void);
 	if (view != nil) return view;
 
 	// default implementation
-	if (annotation == self.userLocation) return nil;
+	if (annotation == (id <MKAnnotation>)self.userLocation) return nil;
 
 	static NSString *identifier = @"annotation";
 	view = [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
 	if (view == nil)
 	{
 		view = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:identifier];
+		[view setCanShowCallout:YES];
 	}
 	else
 	{
 		[view setAnnotation:annotation];
 	}
+
+	[(MKPinAnnotationView *)view setPinColor:
+		[annotation class] == [MIAnnotation class] ?
+		MKPinAnnotationColorGreen :
+		MKPinAnnotationColorRed];
 
 	return view;
 }

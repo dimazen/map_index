@@ -9,7 +9,6 @@
 
 @interface MIAnnotation (Package)
 
-- (id)initWithContent:(MIQuadTreeRef)content;
 @property (nonatomic, assign) MIQuadTreeRef content;
 
 - (void)prepareForReuse;

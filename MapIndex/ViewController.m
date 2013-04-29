@@ -6,32 +6,39 @@
 //  Copyright (c) 2013 dshe. All rights reserved.
 //
 
-#import <MapKit/MapKit.h>
 #import "ViewController.h"
 #import "Airport.h"
 #import "MIQuadTree.h"
 #import "MIMapView.h"
 
 @interface ViewController ()
+{
+    __weak IBOutlet MIMapView *_mapView;
+}
 
 @end
 
 @implementation ViewController
 
-void VCTraverseCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
-{
-
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    NSArray *airports = [Airport allAirports];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
+    {
+        NSArray *airports = [Airport allAirports];
+        dispatch_async(dispatch_get_main_queue(), ^
+        {
+            [_mapView addAnnotations:airports];
+        });
+    });
+}
 
-	MIMapView *view = [MIMapView new];
-	[view addAnnotations:airports];
-	[view removeAnnotations:airports];
+- (void)viewDidUnload
+{
+	[super viewDidUnload];
+
+	_mapView = nil;
 }
 
 - (void)didReceiveMemoryWarning
