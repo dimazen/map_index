@@ -1,8 +1,8 @@
 //
 // Created by dmitriy on 26.03.13.
 //
-#import "MITransaction.h"
+#import "MIRegularTransaction.h"
 
-@interface MIDescendingTransaction : MITransaction
+@interface MIDescendingTransaction : MIRegularTransaction
 
 @end

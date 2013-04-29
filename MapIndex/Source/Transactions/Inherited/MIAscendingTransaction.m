@@ -22,13 +22,13 @@ const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 
 	for (MKAnnotationView *annotationView in views)
 	{
-		id <MKAnnotation> target = annotationView.annotation;
+		[annotationView setAlpha:0.f];
 
 		for (MIAnnotation *sourceAnnotation in self.source)
 		{
-			if ([sourceAnnotation class] == [MIAnnotation class] && [sourceAnnotation contains:target])
+			if ([sourceAnnotation class] == [MIAnnotation class] && [sourceAnnotation contains:annotationView.annotation])
 			{
-				[annotationView applyTranslationFromAnnotation:sourceAnnotation inMapView:(id)self.mapView];
+				[annotationView applyAnnotationTranslation:sourceAnnotation inMapView:(id) self.mapView];
 			}
 		}
 	}
@@ -38,6 +38,7 @@ const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 		for (MKAnnotationView *annotationView in views)
 		{
 			[annotationView applyDefaultTranslation];
+			[annotationView setAlpha:1.f];
 		}
 
 	} completion:^(BOOL finished)

@@ -9,7 +9,7 @@
 
 @implementation MKAnnotationView (MITranslation)
 
-- (void)applyTranslationFromAnnotation:(id <MKAnnotation>)annotation inMapView:(MKMapView *)mapView
+- (void)applyAnnotationTranslation:(id <MKAnnotation>)annotation inMapView:(MKMapView *)mapView
 {
 	MIAssert1(self.superview != nil, @"%p: Nil superview", (__bridge void *)self);
 

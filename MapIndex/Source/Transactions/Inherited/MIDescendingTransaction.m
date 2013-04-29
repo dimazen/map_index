@@ -3,51 +3,63 @@
 //
 
 #import "MIDescendingTransaction.h"
+#import "MIRegularTransaction+Protected.h"
+
 #import "MIMapView.h"
 #import "MITransaction+Subclass.h"
+#import "MITransaction+MIMapView.h"
+#import "MIAnnotation.h"
+#import "MKAnnotationView+MITranslation.h"
 
-const NSTimeInterval _SDDescendingMapTransactionDuration = 0.2;
+const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 
 @implementation MIDescendingTransaction
 
-- (void)perform
+- (void)performRemoveAnimation
 {
-	[self addAnnotations:self.target];
-}
-
-- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
-{
-	[self lock];
-
-	NSMutableArray *removingViews = [[NSMutableArray alloc] initWithCapacity:self.source.count];
-	for (id <MKAnnotation> annotation in self.source)
+	NSMutableArray *views = [[NSMutableArray alloc] initWithCapacity:self.source.count];
+	for (id <MKAnnotation> sourceAnnotation in self.source)
 	{
-		UIView *view = [mapView viewForAnnotation:annotation];
+		MKAnnotationView *view = [self.mapView viewForAnnotation:sourceAnnotation];
 		if (view != nil)
 		{
-			[removingViews addObject:view];
+			[views addObject:view];
 		}
 	}
 
-	[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
-
-	[UIView animateWithDuration:_SDDescendingMapTransactionDuration animations:^
+	if (views.count == 0)
 	{
-		[removingViews makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
+		[self removeAnnotations:self.source];
 
-		[views enumerateObjectsUsingBlock:^(UIView *view, NSUInteger idx, BOOL *stop)
+		return;
+	}
+
+	[UIView animateWithDuration:_MIDescendingTransactionDuration animations:^
+	{
+		[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
+
+		for (MIAnnotation *targetAnnotation in self.target)
 		{
-			[view setAlpha:1.f];
-		}];
+			if ([targetAnnotation class] != [MIAnnotation class]) continue;
+
+			for (MKAnnotationView *view in views)
+			{
+				if (![targetAnnotation contains:view.annotation]) continue;
+
+				[view applyAnnotationTranslation:targetAnnotation inMapView:self.mapView];
+			}
+		}
 
 	} completion:^(BOOL finished)
 	{
-		for (UIView *view in removingViews)
+		for (MKAnnotationView *view in views)
 		{
 			[view setAlpha:1.f];
+			[view applyDefaultTranslation];
 		}
 
 		[self removeAnnotations:self.source];
+
 		[self unlock];
 	}];
 }

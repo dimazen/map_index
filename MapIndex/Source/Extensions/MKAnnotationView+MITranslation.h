@@ -9,7 +9,7 @@
 
 @interface MKAnnotationView (MITranslation)
 
-- (void)applyTranslationFromAnnotation:(id <MKAnnotation>)annotation inMapView:(MKMapView *)mapView;
+- (void)applyAnnotationTranslation:(id <MKAnnotation>)annotation inMapView:(MKMapView *)mapView;
 - (void)applyDefaultTranslation;
 
 @end
