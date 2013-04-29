@@ -6,7 +6,6 @@
 
 #import "MIMapView+MITransaction.h"
 #import "MITransaction+Subclass.h"
-#import "MITransaction+MIMapView.h"
 
 const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 

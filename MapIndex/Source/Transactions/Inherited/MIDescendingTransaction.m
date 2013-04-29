@@ -7,7 +7,7 @@
 
 #import "MIMapView.h"
 #import "MITransaction+Subclass.h"
-#import "MITransaction+MIMapView.h"
+
 #import "MIAnnotation.h"
 #import "MKAnnotationView+MITranslation.h"
 

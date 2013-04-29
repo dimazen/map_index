@@ -6,9 +6,7 @@
 
 #import "MKAnnotationView+MITranslation.h"
 #import "MIAnnotation.h"
-
 #import "MITransaction+Subclass.h"
-#import "MITransaction+MIMapView.h"
 
 const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 
