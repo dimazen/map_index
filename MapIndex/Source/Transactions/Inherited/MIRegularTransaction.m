@@ -13,11 +13,12 @@ const NSTimeInterval _SDRegularMapTransactionDuration = 0.2;
 - (void)perform
 {
 	//fixme: if there will be no annotations to add, then source annotations wouldn't be remove
-	[self addAnnotations:[self.target allObjects]];
+	[self addAnnotations:self.target];
 }
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
+	//fixme: write proper animation
 	[self lock];
 
 	[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
@@ -31,7 +32,7 @@ const NSTimeInterval _SDRegularMapTransactionDuration = 0.2;
 
 	} completion:^(BOOL finished)
 	{
-		[self removeAnnotations:[self.source allObjects]];
+		[self removeAnnotations:self.source];
 		[self unlock];
 	}];
 }

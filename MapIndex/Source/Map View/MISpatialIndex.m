@@ -165,7 +165,7 @@ void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType
 	return [MIAnnotation new];
 }
 
-- (void)revokeAnnotations:(NSSet *)annotations
+- (void)revokeAnnotations:(NSArray *)annotations
 {
 	for (MIAnnotation *annotation in annotations)
 	{

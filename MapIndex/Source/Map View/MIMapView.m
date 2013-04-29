@@ -12,10 +12,8 @@
 #import "MITransaction+Subclass.h"
 
 #import <MapKit/MKPinAnnotationView.h>
-#import <functional>
 
 #import "NSInvocation+SDExtension.h"
-#import "NSMutableSet+SDCountTracking.h"
 #import "MIAnnotation+Package.h"
 
 const double _MIWidthInPixels = 268435456.0;
@@ -177,36 +175,33 @@ typedef void (^_MIMapViewChange)(void);
 		rect.origin.x = 0.0;
 	}
 
+	NSUInteger level = [self zoomLevel];
+
+	NSMutableSet *target = [_spacialIndex requestAnnotationsInMapRect:rect level:level];
 	NSMutableSet *source = [[NSMutableSet alloc] initWithArray:[super annotations]];
 	if (self.userLocation != nil)
 	{
 		[source removeObject:self.userLocation];
 	}
 
-	NSUInteger level = [self zoomLevel];
-
-	NSMutableSet *target = [_spacialIndex requestAnnotationsInMapRect:rect level:level];
-	for (MIAnnotation *sourceAnnotation in source)
+	for (MIAnnotation *sourceAnnotation in [source copy])
 	{
 		if ([sourceAnnotation class] == [MIAnnotation class])
 		{
 			[sourceAnnotation setReadAvailable:NO];
 		}
 
+		NSUInteger countBefore = target.count;
 		[target removeObject:sourceAnnotation];
+		if (target.count < countBefore)
+		{
+			[source removeObject:sourceAnnotation];
+		}
 	}
 
-	[source minusSet:target onCountChange:^(NSUInteger countBefore, NSUInteger countAfter)
-	{
-		if ((countBefore - countAfter) == target.count)
-		{
-			target = nil;
-		}
-	}];
-
-	NSComparisonResult order = [@(level) compare:@(_annotationsLevel)];
-	MITransaction *transaction = [self.transactionFactory transactionWithTarget:target source:source order:order];
-
+	MITransaction *transaction = [self.transactionFactory transactionWithTarget:[target allObjects]
+																		 source:[source allObjects]
+																		  order:[@(level) compare:@(_annotationsLevel)]];
 	[self processTransaction:transaction level:level];
 }
 

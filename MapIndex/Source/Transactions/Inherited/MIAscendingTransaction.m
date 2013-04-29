@@ -14,40 +14,41 @@ const NSTimeInterval _SDAscendingMapTransactionDuration = 0.2;
 
 - (void)perform
 {
-	[self removeAnnotations:[self.source allObjects]];
-	[self addAnnotations:[self.target allObjects]];
+	[self removeAnnotations:self.source];
+	[self addAnnotations:self.target];
 }
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	[self lock];
-
-	[views enumerateObjectsUsingBlock:^(MKAnnotationView *view, NSUInteger idx, BOOL *stop)
-	{
-		id <MKAnnotation> target = view.annotation;
-
-		[self.source enumerateObjectsUsingBlock:^(MIAnnotation *source, BOOL *s)
-		{
-			if ([[source class] isSubclassOfClass:[MIAnnotation class]] && [source contains:target])
-			{
-				[view setTransform:[mapView translateTransformFrom:source.coordinate
-																to:target.coordinate
-														withinView:view.superview]];
-			}
-		}];
-	}];
-
-	[UIView animateWithDuration:_SDAscendingMapTransactionDuration animations:^
-	{
-		[views enumerateObjectsUsingBlock:^(MKAnnotationView *view, NSUInteger idx, BOOL *stop)
-		{
-			[view setTransform:CGAffineTransformIdentity];
-		}];
-
-	} completion:^(BOOL finished)
-	{
-		[self unlock];
-	}];
+	//fixme: fixme
+//	[self lock];
+//
+//	[views enumerateObjectsUsingBlock:^(MKAnnotationView *view, NSUInteger idx, BOOL *stop)
+//	{
+//		id <MKAnnotation> target = view.annotation;
+//
+//		[self.source enumerateObjectsUsingBlock:^(MIAnnotation *source, BOOL *s)
+//		{
+//			if ([[source class] isSubclassOfClass:[MIAnnotation class]] && [source contains:target])
+//			{
+//				[view setTransform:[mapView translateTransformFrom:source.coordinate
+//																to:target.coordinate
+//														withinView:view.superview]];
+//			}
+//		}];
+//	}];
+//
+//	[UIView animateWithDuration:_SDAscendingMapTransactionDuration animations:^
+//	{
+//		[views enumerateObjectsUsingBlock:^(MKAnnotationView *view, NSUInteger idx, BOOL *stop)
+//		{
+//			[view setTransform:CGAffineTransformIdentity];
+//		}];
+//
+//	} completion:^(BOOL finished)
+//	{
+//		[self unlock];
+//	}];
 }
 
 @end

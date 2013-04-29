@@ -19,6 +19,6 @@
 - (NSSet *)annotationsInMapRect:(MKMapRect)mapRect;
 
 - (NSMutableSet *)requestAnnotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level;
-- (void)revokeAnnotations:(NSSet *)annotations;
+- (void)revokeAnnotations:(NSArray *)annotations;
 
 @end

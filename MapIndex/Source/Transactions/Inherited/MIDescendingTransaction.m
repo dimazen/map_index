@@ -12,22 +12,22 @@ const NSTimeInterval _SDDescendingMapTransactionDuration = 0.2;
 
 - (void)perform
 {
-	[self addAnnotations:[self.target allObjects]];
+	[self addAnnotations:self.target];
 }
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
 	[self lock];
 
-	NSMutableSet *removingViews = [[NSMutableSet alloc] initWithCapacity:self.source.count];
-	[self.source enumerateObjectsUsingBlock:^(id <MKAnnotation> obj, BOOL *stop)
+	NSMutableArray *removingViews = [[NSMutableArray alloc] initWithCapacity:self.source.count];
+	for (id <MKAnnotation> annotation in self.source)
 	{
-		UIView *view = [mapView viewForAnnotation:obj];
+		UIView *view = [mapView viewForAnnotation:annotation];
 		if (view != nil)
 		{
 			[removingViews addObject:view];
 		}
-	}];
+	}
 
 	[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
@@ -42,12 +42,12 @@ const NSTimeInterval _SDDescendingMapTransactionDuration = 0.2;
 
 	} completion:^(BOOL finished)
 	{
-		[removingViews enumerateObjectsUsingBlock:^(UIView *view, BOOL *stop)
+		for (UIView *view in removingViews)
 		{
 			[view setAlpha:1.f];
-		}];
+		}
 
-		[self removeAnnotations:[self.source allObjects]];
+		[self removeAnnotations:self.source];
 		[self unlock];
 	}];
 }

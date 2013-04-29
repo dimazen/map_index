@@ -19,6 +19,8 @@
 	BOOL _readAvailable;
 }
 
+@property (nonatomic, assign) MIQuadTreeRef content;
+@property (nonatomic, assign, readonly) BOOL dataAvailable;
 @property (nonatomic, assign) BOOL readAvailable;
 
 - (void)didReceiveMemoryWarning;
@@ -107,45 +109,8 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 	return _cachedAnnotations;
 }
 
-@end
+#pragma mark - Properties
 
-@implementation MIAnnotation (Package)
-
-@dynamic dataAvailable, readAvailable;
-
-#pragma mark - Init
-
-- (id)initWithContent:(MIQuadTreeRef)content
-{
-	self = [self init];
-	if (self != nil)
-	{
-		[self setContent:content];
-	}
-
-	return self;
-}
-#pragma mark - Reuse
-
-- (void)prepareForReuse
-{
-	[self setContent:NULL];
-
-	_coordinate = {0.0, 0.0};
-	_count = 0;
-}
-
-#pragma mark - Flags
-
-- (BOOL)dataAvailable
-{
-	return _dataAvailable;
-}
-
-- (BOOL)readAvailable
-{
-	return _readAvailable;
-}
 
 #pragma mark - Content
 
@@ -170,6 +135,44 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 		_dataAvailable = NO;
 		_readAvailable = NO;
 	}
+}
+
+- (BOOL)dataAvailable
+{
+	return _dataAvailable;
+}
+
+- (BOOL)readAvailable
+{
+	return _readAvailable;
+}
+
+@end
+
+@implementation MIAnnotation (Package)
+
+@dynamic content, dataAvailable, readAvailable;
+
+#pragma mark - Init
+
+- (id)initWithContent:(MIQuadTreeRef)content
+{
+	self = [self init];
+	if (self != nil)
+	{
+		[self setContent:content];
+	}
+
+	return self;
+}
+#pragma mark - Reuse
+
+- (void)prepareForReuse
+{
+	[self setContent:NULL];
+
+	_coordinate = (CLLocationCoordinate2D){0.0, 0.0};
+	_count = 0;
 }
 
 @end

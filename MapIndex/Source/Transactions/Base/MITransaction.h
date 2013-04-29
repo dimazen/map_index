@@ -7,10 +7,10 @@
 
 @interface MITransaction : NSObject
 
-@property (nonatomic, strong, readonly) NSSet *target;
-@property (nonatomic, strong, readonly) NSSet *source;
+@property (nonatomic, strong, readonly) NSArray *target;
+@property (nonatomic, strong, readonly) NSArray *source;
 @property (nonatomic, readonly) NSComparisonResult order;
 
-- (id)initWithTarget:(NSSet *)target source:(NSSet *)source order:(NSComparisonResult)order;
+- (id)initWithTarget:(NSArray *)target source:(NSArray *)source order:(NSComparisonResult)order;
 
 @end

@@ -16,7 +16,7 @@
 
 @implementation MITransaction
 
-- (id)initWithTarget:(NSSet *)target source:(NSSet *)source order:(NSComparisonResult)order
+- (id)initWithTarget:(NSArray *)target source:(NSArray *)source order:(NSComparisonResult)order
 {
 	self = [super init];
 	if (self)
