@@ -18,8 +18,7 @@
 
 #import <libkern/OSAtomic.h>
 
-const double _MIWidthInPixels = 134217728.0;
-const double _MIMercatorRadius = _MIWidthInPixels / M_PI;
+const double _MIMercatorRadius = 85445659.44705395;
 const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
 
 typedef void (^_MIMapViewChange)(void);

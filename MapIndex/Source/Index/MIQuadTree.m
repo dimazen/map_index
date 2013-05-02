@@ -260,7 +260,7 @@ void MIQuadTreeTraversLevelRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsign
 {
 	if (tree->count == 0 || !MKMapRectIntersectsRect(tree->rect, rect)) return;
 
-	if (tree->topLeftLeaf != NULL && tree->level < level)
+	if (tree->topLeftLeaf != NULL && tree->level <= level)
 	{
 		MIQuadTreeTraversLevelRectPoints(tree->topLeftLeaf, rect, level, traverse);
 		MIQuadTreeTraversLevelRectPoints(tree->topRightLeaf, rect, level, traverse);
