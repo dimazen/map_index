@@ -1,7 +1,4 @@
 //
-//  QuadTreeNode.c
-//  SDMapView
-//
 //  Created by dshe on 04/14/13.
 //  Copyright (c) 2013 __MyCompanyName__. All rights reserved.
 //

@@ -1,12 +1,14 @@
 //
 // Created by dmitriy on 26.03.13.
 //
+
 #import "MIAscendingTransaction.h"
+#import "MITransaction+Subclass.h"
 #import "MIRegularTransaction+Protected.h"
 
-#import "MKAnnotationView+MITranslation.h"
+#import "MIMapView.h"
 #import "MIAnnotation.h"
-#import "MITransaction+Subclass.h"
+#import "MITransaction+MIMapView.h"
 
 const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 
@@ -18,25 +20,24 @@ const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 {
 	[self lock];
 
-	for (MKAnnotationView *annotationView in views)
+	for (MKAnnotationView *view in views)
 	{
-		[annotationView setAlpha:0.f];
+		[view setAlpha:0.f];
 
-		for (MIAnnotation *sourceAnnotation in self.source)
+		for (MIAnnotation *source in self.source)
 		{
-			if ([sourceAnnotation class] == [MIAnnotation class] && [sourceAnnotation contains:annotationView.annotation])
-			{
-				[annotationView applyAnnotationTranslation:sourceAnnotation inMapView:(id) self.mapView];
-			}
+			if (!([source class] == [MIAnnotation class] && [source contains:view.annotation])) continue;
+
+			[view setCenter:[self.mapView convertCoordinate:source.coordinate toPointToView:view.superview]];
 		}
 	}
 
 	[UIView animateWithDuration:_MIAscendingTransactionDuration animations:^
 	{
-		for (MKAnnotationView *annotationView in views)
+		for (MKAnnotationView *view in views)
 		{
-			[annotationView applyDefaultTranslation];
-			[annotationView setAlpha:1.f];
+			[view setCenter:[self.mapView convertCoordinate:view.annotation.coordinate toPointToView:view.superview]];
+			[view setAlpha:1.f];
 		}
 
 	} completion:^(BOOL finished)
@@ -44,8 +45,5 @@ const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 		[self unlock];
 	}];
 }
-
-#pragma mark - Invocation
-
 
 @end

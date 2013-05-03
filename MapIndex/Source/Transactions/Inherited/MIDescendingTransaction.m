@@ -3,13 +3,12 @@
 //
 
 #import "MIDescendingTransaction.h"
+#import "MITransaction+Subclass.h"
 #import "MIRegularTransaction+Protected.h"
 
 #import "MIMapView.h"
-#import "MITransaction+Subclass.h"
-
 #import "MIAnnotation.h"
-#import "MKAnnotationView+MITranslation.h"
+#import "MITransaction+MIMapView.h"
 
 const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 
@@ -30,7 +29,6 @@ const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 	if (views.count == 0)
 	{
 		[self removeAnnotations:self.source];
-
 		return;
 	}
 
@@ -38,15 +36,15 @@ const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 	{
 		[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
-		for (MIAnnotation *targetAnnotation in self.target)
+		for (MIAnnotation *target in self.target)
 		{
-			if ([targetAnnotation class] != [MIAnnotation class]) continue;
+			if ([target class] != [MIAnnotation class]) continue;
 
 			for (MKAnnotationView *view in views)
 			{
-				if (![targetAnnotation contains:view.annotation]) continue;
+				if (![target contains:view.annotation]) continue;
 
-				[view applyAnnotationTranslation:targetAnnotation inMapView:self.mapView];
+				[view setCenter:[self.mapView convertCoordinate:target.coordinate toPointToView:view.superview]];
 			}
 		}
 
@@ -55,11 +53,9 @@ const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 		for (MKAnnotationView *view in views)
 		{
 			[view setAlpha:1.f];
-			[view applyDefaultTranslation];
 		}
 
 		[self removeAnnotations:self.source];
-
 		[self unlock];
 	}];
 }

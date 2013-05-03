@@ -6,6 +6,7 @@
 
 #import "MIMapView+MITransaction.h"
 #import "MITransaction+Subclass.h"
+#import "MITypes.h"
 
 const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
@@ -15,11 +16,6 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 - (void)perform
 {
-	[self addAnnotations:self.target];
-	[self removeAnnotations:self.source];
-
-	return;
-
 	if (self.target.count > 0)
 	{
 		[self addAnnotations:self.target];
@@ -32,7 +28,7 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	return;
+	MIAssert1(views.count > 0, @"%p: Empty views array", (__bridge void *)self);
 
 	[self performRemoveAnimation];
 	[self performAddAnimation:views];
@@ -47,10 +43,10 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 	NSMutableArray *views = [[NSMutableArray alloc] initWithCapacity:self.source.count];
 	for (id <MKAnnotation> annotation in self.source)
 	{
-		MKAnnotationView *annotationView = [self.mapView viewForAnnotation:annotation];
-		if (annotationView != nil)
+		MKAnnotationView *view = [self.mapView viewForAnnotation:annotation];
+		if (view != nil)
 		{
-			[views addObject:annotationView];
+			[views addObject:view];
 		}
 	}
 
@@ -69,9 +65,9 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 	} completion:^(BOOL finished)
 	{
-		for (MKAnnotationView *annotationView in views)
+		for (MKAnnotationView *view in views)
 		{
-			[annotationView setAlpha:1.f];
+			[view setAlpha:1.f];
 		}
 
 		[self removeAnnotations:self.source];
@@ -87,9 +83,9 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 	[UIView animateWithDuration:_MIRegularTransactionDuration animations:^
 	{
-		for (MKAnnotationView *annotationView in views)
+		for (MKAnnotationView *view in views)
 		{
-			[annotationView setAlpha:1.f];
+			[view setAlpha:1.f];
 		}
 
 	} completion:^(BOOL finished)
