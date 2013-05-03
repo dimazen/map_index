@@ -122,6 +122,7 @@ void _MISpacialIndexAnnotationsCallback(MIPoint point, MITraverseResultType resu
 void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
 {
 	MISpatialIndex *self = (__bridge MISpatialIndex *)traverse->context;
+
 	if (resultType == MITraverseResultTree)
 	{
 		MIAnnotation *annotation = [self dequeueAnnotation];

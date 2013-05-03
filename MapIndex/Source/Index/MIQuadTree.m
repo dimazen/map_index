@@ -35,29 +35,30 @@ MIQuadTreeRef _MIQuadTreeCreate(MIQuadTreeRef tree, MIQuadTreeRef root, MKMapRec
 	tree->rect = rect;
 	tree->level = level;
 	tree->root = root;
+	tree->centroid = (MKMapPoint){rect.origin.x + rect.size.width * 0.5, rect.origin.y + rect.size.height * 0.5};
 
 	return tree;
 }
 
 MIQuadTreeRef MIQuadTreeCreate(MKMapRect rect)
 {
-	MIQuadTreeRef node = malloc(sizeof(struct MIQuadTree));
+	MIQuadTreeRef tree = malloc(sizeof(struct MIQuadTree));
 
-	node->topLeftLeaf = NULL;
-	node->topRightLeaf = NULL;
-	node->bottomLeftLeaf = NULL;
-	node->bottomRightLeaf = NULL;
+	tree->topLeftLeaf = NULL;
+	tree->topRightLeaf = NULL;
+	tree->bottomLeftLeaf = NULL;
+	tree->bottomRightLeaf = NULL;
 
-	node->rect = rect;
-	node->centroid = (MKMapPoint){0.0, 0.0};
+	tree->rect = rect;
+	tree->centroid = (MKMapPoint){rect.origin.x + rect.size.width * 0.5, rect.origin.y + rect.size.height * 0.5};
 
-	node->pointList = NULL;
-	node->count = 0;
+	tree->pointList = NULL;
+	tree->count = 0;
 
-	node->level = 0;
-	node->root = NULL;
+	tree->level = 0;
+	tree->root = NULL;
 
-	return node;
+	return tree;
 }
 
 #pragma mark - Free
