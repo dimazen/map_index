@@ -12,8 +12,8 @@
 @property (nonatomic, assign) MIQuadTreeRef content;
 
 - (void)prepareForReuse;
+- (void)updateContentData;
 
-@property (nonatomic, assign, readonly) BOOL dataAvailable;
 @property (nonatomic, assign) BOOL readAvailable;
 
 @end

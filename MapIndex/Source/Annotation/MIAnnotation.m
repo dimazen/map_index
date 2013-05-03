@@ -18,12 +18,8 @@
 	NSString *_title;
 	NSString *_subtitle;
 	NSMutableSet *_annotations;
-
-	BOOL _dataAvailable;
 }
 
-@property (nonatomic, assign) MIQuadTreeRef content;
-@property (nonatomic, assign, readonly) BOOL dataAvailable;
 @property (nonatomic, assign) BOOL readAvailable;
 
 - (void)didReceiveMemoryWarning;
@@ -73,7 +69,7 @@
 
 - (NSString *)title
 {
-	if (_title == nil && _dataAvailable && _readAvailable)
+	if (_title == nil && _readAvailable)
 	{
 		_title = [[NSString alloc] initWithFormat:@"%@ cluster: %d", NSStringFromClass([self class]), _count];
 	}
@@ -83,7 +79,7 @@
 
 - (NSString *)subtitle
 {
-	if (_subtitle == nil && _dataAvailable && _readAvailable)
+	if (_subtitle == nil && _readAvailable)
 	{
 		_subtitle = [[NSString alloc] initWithFormat:@"lat:%.6f lon:%.6f", _coordinate.latitude, _coordinate.longitude];
 	}
@@ -100,7 +96,7 @@
 
 - (BOOL)contains:(id <MKAnnotation>)annotation
 {
-	if (!(_dataAvailable && _readAvailable)) return NO;
+	if (!(_readAvailable)) return NO;
 
 	if ([annotation class] == [MIAnnotation class])
 	{
@@ -117,7 +113,7 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 
 - (NSSet *)allAnnotations
 {
-	if (_annotations == nil && _dataAvailable && _readAvailable)
+	if (_annotations == nil && _readAvailable)
 	{
 		_annotations = [[NSMutableSet alloc] initWithCapacity:_count];
 
@@ -136,8 +132,7 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 
 - (BOOL)isEqual:(id)object
 {
-	return [self class] == [object class] &&
-		self->_content == ((MIAnnotation *)object)->_content;
+	return [self class] == [object class] && self->_content == ((MIAnnotation *)object)->_content;
 }
 
 - (NSUInteger)hash
@@ -159,41 +154,48 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 
 	if (_content != NULL)
 	{
-		_count = MIQuadTreeGetCount(_content);
-		_coordinate = MKCoordinateForMapPoint(MIQuadTreeGetCentroid(_content));
-
-		_dataAvailable = YES;
-		_readAvailable = YES;
+		[self setReadAvailable:YES];
+		[self updateContentData];
 	}
 	else
 	{
-		_dataAvailable = NO;
-		_readAvailable = NO;
+		[self setReadAvailable:NO];
 	}
+}
+
+- (MIQuadTreeRef)content
+{
+	return _content;
 }
 
 - (void)setReadAvailable:(BOOL)readAvailable
 {
-	_readAvailable = readAvailable & _dataAvailable;
-}
-
-- (BOOL)dataAvailable
-{
-	return _dataAvailable;
+	_readAvailable = readAvailable && _content != NULL;
 }
 
 @end
 
 @implementation MIAnnotation (Package)
 
-@dynamic content, dataAvailable, readAvailable;
+@dynamic content, readAvailable;
+
+- (void)updateContentData
+{
+	if (_readAvailable)
+	{
+		_count = MIQuadTreeGetCount(_content);
+		_coordinate = MKCoordinateForMapPoint(MIQuadTreeGetCentroid(_content));
+	}
+	else
+	{
+		_coordinate = (CLLocationCoordinate2D){0.0, 0.0};
+		_count = 0;
+	}
+}
 
 - (void)prepareForReuse
 {
 	[self setContent:NULL];
-
-	_coordinate = (CLLocationCoordinate2D){0.0, 0.0};
-	_count = 0;
 }
 
 @end

@@ -15,6 +15,11 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 - (void)perform
 {
+	[self addAnnotations:self.target];
+	[self removeAnnotations:self.source];
+
+	return;
+
 	if (self.target.count > 0)
 	{
 		[self addAnnotations:self.target];
@@ -27,6 +32,8 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
+	return;
+
 	[self performRemoveAnimation];
 	[self performAddAnimation:views];
 }

@@ -215,7 +215,7 @@ typedef void (^_MIMapViewChange)(void);
 
 	__block NSMutableSet *target = [NSMutableSet new];
 	[_spacialIndex annotationsInMapRect:[self updateAnnotationsRect]
-								  level:level
+								  level:level + 1
 							   callback:^(NSMutableSet *clusters, NSMutableSet *points)
 	{
 		[_clusters setSet:clusters];
@@ -230,13 +230,18 @@ typedef void (^_MIMapViewChange)(void);
 		[source removeObject:self.userLocation];
 	}
 
-	for (MIAnnotation *sourceAnnotation in [source copy])
+	for (MIAnnotation *annotation in [source copy])
 	{
-		NSUInteger countBefore = target.count;
-		[target removeObject:sourceAnnotation];
-		if (target.count < countBefore)
+		MIAnnotation *memberAnnotation = [target member:annotation];
+		if (memberAnnotation != nil)
 		{
-			[source removeObject:sourceAnnotation];
+			if ([memberAnnotation class] == [MIAnnotation class])
+			{
+				[memberAnnotation updateContentData];
+			}
+
+			[source removeObject:memberAnnotation];
+			[target removeObject:memberAnnotation];
 		}
 	}
 
