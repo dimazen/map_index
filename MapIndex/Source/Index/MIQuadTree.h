@@ -20,9 +20,6 @@ MI_EXTERN MIQuadTreeRef MIQuadTreeCreate(MKMapRect rect);
 
 MI_EXTERN void MIQuadTreeFree(MIQuadTreeRef tree);
 
-MI_EXTERN MIQuadTreeRef MIQuadTreeRetain(MIQuadTreeRef tree);
-MI_EXTERN void MIQuadTreeRelease(MIQuadTreeRef tree);
-
 #pragma mark - Data Access
 
 MI_EXTERN unsigned int MIQuadTreeGetCount(MIQuadTreeRef tree);
