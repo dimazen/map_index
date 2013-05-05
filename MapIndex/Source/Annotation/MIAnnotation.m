@@ -20,6 +20,10 @@
 	NSMutableSet *_annotations;
 }
 
+@property (nonatomic) NSUInteger count;
+@property (nonatomic) CLLocationCoordinate2D coordinate;
+
+
 @property (nonatomic, assign) BOOL readAvailable;
 
 - (void)didReceiveMemoryWarning;
@@ -62,11 +66,6 @@
 
 #pragma mark - MKAnnotation
 
-- (CLLocationCoordinate2D)coordinate
-{
-	return _coordinate;
-}
-
 - (NSString *)title
 {
 	if (_title == nil && _readAvailable)
@@ -88,11 +87,6 @@
 }
 
 #pragma mark - MIAnnotation
-
-- (NSUInteger)count
-{
-	return _count;
-}
 
 - (BOOL)contains:(id <MKAnnotation>)annotation
 {
@@ -183,13 +177,13 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 {
 	if (_readAvailable)
 	{
-		_count = MIQuadTreeGetCount(_content);
-		_coordinate = MKCoordinateForMapPoint(MIQuadTreeGetCentroid(_content));
+		[self setCount:MIQuadTreeGetCount(_content)];
+		[self setCoordinate:MKCoordinateForMapPoint(MIQuadTreeGetCentroid(_content))];
 	}
 	else
 	{
-		_coordinate = (CLLocationCoordinate2D){0.0, 0.0};
-		_count = 0;
+		[self setCount:0];
+		[self setCoordinate:(CLLocationCoordinate2D){0.0, 0.0}];
 	}
 }
 

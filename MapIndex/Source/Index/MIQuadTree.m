@@ -4,6 +4,7 @@
 //
 
 #import <MapKit/MapKit.h>
+
 #import "MIQuadTree.h"
 
 const char _MIQuadTreePointsLimit = 1;
@@ -32,7 +33,6 @@ MIQuadTreeRef _MIQuadTreeCreate(MIQuadTreeRef tree, MIQuadTreeRef root, MKMapRec
 	tree->rect = rect;
 	tree->level = level;
 	tree->root = root;
-	tree->centroid = (MKMapPoint){rect.origin.x + rect.size.width * 0.5, rect.origin.y + rect.size.height * 0.5};
 
 	return tree;
 }
@@ -47,7 +47,7 @@ MIQuadTreeRef MIQuadTreeCreate(MKMapRect rect)
 	tree->bottomRightLeaf = NULL;
 
 	tree->rect = rect;
-	tree->centroid = (MKMapPoint){rect.origin.x + rect.size.width * 0.5, rect.origin.y + rect.size.height * 0.5};
+	tree->centroid = (MKMapPoint){0.0, 0.0};
 
 	tree->pointList = NULL;
 	tree->count = 0;
@@ -146,6 +146,7 @@ void _MIQuadTreeNodePullPoint(MIQuadTreeRef source, MIQuadTreeRef target)
 	target->pointList = source->pointList;
 	source->pointList = NULL;
 
+	target->centroid = (MKMapPoint){target->pointList->point.x, target->pointList->point.y};
 	target->count = _MIQuadTreePointsLimit;
 }
 
@@ -170,6 +171,8 @@ void _MIQuadTreeInsertPoint(MIQuadTreeRef tree, MIPoint point)
 
 	tree->centroid.x += (point.x - tree->centroid.x) / tree->count;
 	tree->centroid.y += (point.y - tree->centroid.y) / tree->count;
+
+	MICParameterAssert(MKMapRectContainsPoint(tree->rect, tree->centroid));
 
 	if (tree->topLeftLeaf != NULL)
 	{
