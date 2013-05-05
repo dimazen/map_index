@@ -5,15 +5,7 @@
 
 #import "MIMapView.h"
 #import "MIMapView+MITransaction.h"
-#import "MITransaction+MIMapView.h"
 #import "MITypes.h"
-
-@interface MITransaction ()
-
-@property (nonatomic, weak) MIMapView *mapView;
-
-@end
-
 
 @implementation MITransaction
 
@@ -38,14 +30,6 @@
 {}
 
 @end
-
-
-@implementation MITransaction (MIMapView)
-
-@dynamic mapView;
-
-@end
-
 
 @implementation MITransaction (Subclass)
 

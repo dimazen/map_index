@@ -1,9 +1,9 @@
 //
 // Created by dmitriy on 25.03.13.
 //
-#import "NSInvocation+SDExtension.h"
+#import "NSInvocation+MIExtension.h"
 
-@implementation NSInvocation (SDExtension)
+@implementation NSInvocation (MIExtension)
 
 - (void)setArguments:(id)args, ... __attribute__((sentinel))
 {

@@ -6,12 +6,10 @@
 //  Copyright (c) 2013 dshe. All rights reserved.
 //
 
-#if !defined(_MITypes_H_)
-#define _MITypes_H_
-
 #import <MapKit/MKGeometry.h>
 
 static const unsigned char MIZoomDepth = 20;
+static const double MIMercatorRadius = 85445659.44705395;
 
 #if !defined(MI_INLINE)
 #define MI_INLINE static __inline__ __attribute__((always_inline))
@@ -58,5 +56,3 @@ struct MITraverse
 	MITraverseCallback callback;
 	void *context;
 };
-
-#endif

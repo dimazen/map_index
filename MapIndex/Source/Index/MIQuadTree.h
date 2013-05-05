@@ -40,6 +40,7 @@ MI_EXTERN void MIQuadTreeRemoveAllPoints(MIQuadTreeRef tree);
 
 #pragma mark - Traversal
 
+MI_EXTERN MIPoint MIQuadTreeAnyPoint(MIQuadTreeRef tree);
 MI_EXTERN void MIQuadTreeTraversLevelRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned int level, MITraverse *traverse);
 MI_EXTERN void MIQuadTreeTraversRectPoints(MIQuadTreeRef tree, MKMapRect rect, MITraverse *traverse);
 MI_EXTERN void MIQuadTreeTraversPoints(MIQuadTreeRef tree, MITraverse *traverse);

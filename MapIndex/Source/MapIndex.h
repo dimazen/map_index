@@ -6,12 +6,7 @@
 //  Copyright (c) 2013 __MyCompanyName__. All rights reserved.
 //
 
-#ifndef _MapIndex_
-#define _MapIndex_
-
 #import "MIUtility.h"
 #import "MIQuadTree.h"
 #import "MIPointList.h"
 #import "MISpatialIndex.h"
-
-#endif

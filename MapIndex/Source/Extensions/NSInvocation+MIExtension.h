@@ -3,7 +3,7 @@
 //
 #import <Foundation/Foundation.h>
 
-@interface NSInvocation (SDExtension)
+@interface NSInvocation (MIExtension)
 
 - (void)setArguments:(id)args, ... __attribute__((sentinel));
 

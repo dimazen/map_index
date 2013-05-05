@@ -8,17 +8,15 @@
 
 #import "MIMapView+MITransaction.h"
 #import "MITransactionFactory.h"
-#import "MITransaction+MIMapView.h"
 #import "MITransaction+Subclass.h"
 
 #import <MapKit/MKPinAnnotationView.h>
 
-#import "NSInvocation+SDExtension.h"
+#import "NSInvocation+MIExtension.h"
 #import "MIAnnotation+Package.h"
 
 #import <libkern/OSAtomic.h>
 
-const double _MIMercatorRadius = 85445659.44705395;
 const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
 
 typedef void (^_MIMapViewChange)(void);
@@ -147,7 +145,7 @@ typedef void (^_MIMapViewChange)(void);
 - (NSUInteger)zoomLevel
 {
 	double mapWidthInPixels = self.bounds.size.width;
-	double zoomScale = self.region.span.longitudeDelta * _MIMercatorRadius * M_PI / (180.0 * mapWidthInPixels);
+	double zoomScale = self.region.span.longitudeDelta * MIMercatorRadius * M_PI / (180.0 * mapWidthInPixels);
 	return (NSUInteger)ceil(MIZoomDepth - log2(zoomScale));
 }
 

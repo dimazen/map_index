@@ -6,8 +6,9 @@
 #import <MapKit/MapKit.h>
 
 #import "MIQuadTree.h"
+#import "MIPointList.h"
 
-const char _MIQuadTreePointsLimit = 1;
+const char _MIQuadTreePointsLimit = 1; // Point-Region QuadTree
 
 struct MIQuadTree
 {
@@ -256,6 +257,35 @@ void MIQuadTreeRemoveAllPoints(MIQuadTreeRef tree)
 }
 
 #pragma mark - Traversing
+
+MIPoint MIQuadTreeAnyPoint(MIQuadTreeRef tree)
+{
+	if (tree->count == 0) return (MIPoint){0.0, 0.0, NULL};
+
+	if (tree->topLeftLeaf != NULL)
+	{
+		if (tree->topLeftLeaf->count > 0)
+		{
+			return MIQuadTreeAnyPoint(tree->topLeftLeaf);
+		}
+		else if (tree->topRightLeaf->count > 0)
+		{
+			return MIQuadTreeAnyPoint(tree->topRightLeaf);
+		}
+		else if (tree->bottomLeftLeaf->count > 0)
+		{
+			return MIQuadTreeAnyPoint(tree->bottomLeftLeaf);
+		}
+		else if (tree->bottomRightLeaf->count > 0)
+		{
+			return MIQuadTreeAnyPoint(tree->bottomRightLeaf);
+		}
+	}
+
+	MICParameterAssert(tree->pointList != NULL);
+
+	return tree->pointList->point;
+}
 
 void MIQuadTreeTraversLevelRectPoints(MIQuadTreeRef tree, MKMapRect rect, unsigned int level, MITraverse *traverse)
 {

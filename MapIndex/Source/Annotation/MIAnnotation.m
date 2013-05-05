@@ -6,6 +6,7 @@
 
 #import "MIAnnotation.h"
 #import "MIAnnotation+Package.h"
+#import "MIPoint.h"
 
 @interface MIAnnotation ()
 {
@@ -120,6 +121,18 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 	}
 
 	return _annotations;
+}
+
+- (id <MKAnnotation>)anyAnnotation
+{
+	if (!_readAvailable) return nil;
+
+	if (_annotations != nil)
+	{
+		return [_annotations anyObject];
+	}
+
+	return (__bridge id <MKAnnotation>)MIQuadTreeAnyPoint(_content).identifier;
 }
 
 #pragma mark - Equality

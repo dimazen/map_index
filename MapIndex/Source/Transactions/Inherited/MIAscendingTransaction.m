@@ -8,7 +8,6 @@
 
 #import "MIMapView.h"
 #import "MIAnnotation.h"
-#import "MITransaction+MIMapView.h"
 
 const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
 

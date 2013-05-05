@@ -7,7 +7,7 @@
 
 @interface MITransaction : NSObject
 
-@property (nonatomic, weak, readonly) MIMapView *mapView;
+@property (nonatomic, weak) MIMapView *mapView;
 
 @property (nonatomic, strong, readonly) NSArray *target;
 @property (nonatomic, strong, readonly) NSArray *source;

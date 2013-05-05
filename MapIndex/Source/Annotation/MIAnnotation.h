@@ -16,5 +16,6 @@
 @property (nonatomic, readonly) NSUInteger count;
 - (BOOL)contains:(id <MKAnnotation>)annotation;
 - (NSSet *)allAnnotations;
+- (id <MKAnnotation>)anyAnnotation;
 
 @end
