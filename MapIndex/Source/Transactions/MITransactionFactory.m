@@ -27,7 +27,7 @@
 			break;
 	}
 
-	return [[transactionClass alloc] initWithTarget:target source:source order:order];
+	return [[transactionClass alloc] initWithTarget:target source:source];
 }
 
 @end

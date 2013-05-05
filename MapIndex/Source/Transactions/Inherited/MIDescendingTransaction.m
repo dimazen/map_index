@@ -32,6 +32,8 @@ const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 		return;
 	}
 
+	[self lock];
+
 	[UIView animateWithDuration:_MIDescendingTransactionDuration animations:^
 	{
 		[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];

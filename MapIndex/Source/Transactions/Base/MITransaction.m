@@ -6,6 +6,7 @@
 #import "MIMapView.h"
 #import "MIMapView+MITransaction.h"
 #import "MITransaction+MIMapView.h"
+#import "MITypes.h"
 
 @interface MITransaction ()
 
@@ -16,14 +17,13 @@
 
 @implementation MITransaction
 
-- (id)initWithTarget:(NSArray *)target source:(NSArray *)source order:(NSComparisonResult)order
+- (id)initWithTarget:(NSArray *)target source:(NSArray *)source
 {
 	self = [super init];
 	if (self)
 	{
 		_target = target;
 		_source = source;
-		_order = order;
 	}
 
 	return self;
@@ -51,31 +51,37 @@
 
 - (void)addAnnotation:(id <MKAnnotation>)annotation
 {
+	MICParameterAssert(self.mapView != nil);
 	[self.mapView transaction:self addAnnotation:annotation];
 }
 
 - (void)addAnnotations:(NSArray *)annotations
 {
+	MICParameterAssert(self.mapView != nil);
 	[self.mapView transaction:self addAnnotations:annotations];
 }
 
 - (void)removeAnnotation:(id <MKAnnotation>)annotation
 {
+	MICParameterAssert(self.mapView != nil);
 	[self.mapView transaction:self removeAnnotation:annotation];
 }
 
 - (void)removeAnnotations:(NSArray *)annotations
 {
+	MICParameterAssert(self.mapView != nil);
 	[self.mapView transaction:self removeAnnotations:annotations];
 }
 
 - (void)lock
 {
+	MICParameterAssert(self.mapView != nil);
 	[self.mapView lock:self];
 }
 
 - (void)unlock
 {
+	MICParameterAssert(self.mapView != nil);
 	[self.mapView unlock:self];
 }
 

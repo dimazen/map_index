@@ -11,8 +11,7 @@
 
 @property (nonatomic, strong, readonly) NSArray *target;
 @property (nonatomic, strong, readonly) NSArray *source;
-@property (nonatomic, readonly) NSComparisonResult order;
 
-- (id)initWithTarget:(NSArray *)target source:(NSArray *)source order:(NSComparisonResult)order;
+- (id)initWithTarget:(NSArray *)target source:(NSArray *)source;
 
 @end
