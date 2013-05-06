@@ -177,7 +177,7 @@ void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType
 	{
 		if ([annotation class] == [self class])
 		{
-			[annotation prepareForReuse];
+			[annotation setContent:NULL];
 			[_annotationsPool addObject:annotation];
 		}
 	}

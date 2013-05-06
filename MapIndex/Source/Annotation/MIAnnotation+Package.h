@@ -10,8 +10,6 @@
 @interface MIAnnotation (Package)
 
 @property (nonatomic, assign) MIQuadTreeRef content;
-
-- (void)prepareForReuse;
 - (void)updateContentData;
 
 @property (nonatomic, assign) BOOL readAvailable;

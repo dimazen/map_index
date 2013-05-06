@@ -230,16 +230,17 @@ typedef void (^_MIMapViewChange)(void);
 
 	for (MIAnnotation *annotation in [source copy])
 	{
-		MIAnnotation *memberAnnotation = [target member:annotation];
-		if (memberAnnotation != nil)
+		MIAnnotation *member = [target member:annotation];
+		if (member != nil)
 		{
-			if ([memberAnnotation class] == [MIAnnotation class])
+			if ([member class] == [MIAnnotation class])
 			{
-				[memberAnnotation updateContentData];
+				[member setReadAvailable:YES];
+				[member updateContentData];
 			}
 
-			[source removeObject:memberAnnotation];
-			[target removeObject:memberAnnotation];
+			[source removeObject:member];
+			[target removeObject:member];
 		}
 	}
 

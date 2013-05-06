@@ -200,9 +200,4 @@ void _MIAnnotationTraversCallback(MIPoint point, MITraverseResultType resultType
 	}
 }
 
-- (void)prepareForReuse
-{
-	[self setContent:NULL];
-}
-
 @end
