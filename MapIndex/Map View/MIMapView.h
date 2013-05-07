@@ -34,7 +34,8 @@
 		BOOL delegateDidAddAnnotationViews : 1;
 		BOOL delegateRegionWillChangeAnimated : 1;
 		BOOL delegateRegionDidChangeAnimated : 1;
-		BOOL removalHandled : 1;
+		BOOL removalHandlingRequired : 1;
+		BOOL transactionAddExpected : 1;
 	} _flags;
 
 	__weak id <MKMapViewDelegate> _targetDelegate;

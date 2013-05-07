@@ -79,8 +79,6 @@ typedef void (^_MIMapViewChange)(void);
 	_annotationsLevel = 0;
 	_clusters = [NSMutableSet new];
 
-	_flags.removalHandled = YES;
-
 	[self setTransactionFactory:[MITransactionFactory new]];
 
 	[super setDelegate:self];
@@ -216,9 +214,9 @@ typedef void (^_MIMapViewChange)(void);
 {
 	[self flushDeferredChanges];
 
-	if (!_flags.removalHandled)
+	if (_flags.removalHandlingRequired)
 	{
-		_flags.removalHandled = YES;
+		_flags.removalHandlingRequired = NO;
 		[_clusters makeObjectsPerformSelector:@selector(setReadAvailable:) withObject:nil];
 	}
 }
@@ -235,12 +233,12 @@ typedef void (^_MIMapViewChange)(void);
 	[_index annotationsInMapRect:[self updateAnnotationsRect]
 						   level:level + 1
 						callback:^(NSMutableSet *clusters, NSMutableSet *points)
-						{
-							[_clusters setSet:clusters];
+	{
+		[_clusters setSet:clusters];
 
-							[clusters unionSet:points];
-							target = clusters;
-						}];
+		[clusters unionSet:points];
+		target = clusters;
+	}];
 
 	NSMutableSet *source = [[NSMutableSet alloc] initWithArray:[super annotations]];
 	if (self.userLocation != nil)
@@ -277,10 +275,12 @@ typedef void (^_MIMapViewChange)(void);
 	_transaction = transaction;
 	_annotationsLevel = level;
 
+	_flags.transactionAddExpected = _transaction.target.count > 0;
+
 	[transaction setMapView:self];
 	[transaction perform];
 
-	if (![self isLocked])
+	if (!_flags.transactionAddExpected && ![self isLocked])
 	{
 		[self finalizeTransaction:transaction];
 	}
@@ -295,14 +295,19 @@ typedef void (^_MIMapViewChange)(void);
 
 	[_index revokeAnnotations:transaction.source];
 
+	_flags.transactionAddExpected = NO;
+
 	[_transaction setMapView:nil];
 	_transaction = nil;
 }
 
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	if (_transaction != nil && [[views lastObject] annotation] != self.userLocation)
+	if (_flags.transactionAddExpected && [[views lastObject] annotation] != self.userLocation)
 	{
+		MICParameterAssert(_transaction != nil);
+
+		_flags.transactionAddExpected = NO;
 		[_transaction mapView:self didAddAnnotationViews:views];
 	}
 
@@ -363,7 +368,7 @@ typedef void (^_MIMapViewChange)(void);
 	[self requestChange:^
 	{
 		[_index removeAnnotations:annotations];
-		_flags.removalHandled = NO;
+		_flags.removalHandlingRequired = YES;
 	}];
 }
 
@@ -372,7 +377,7 @@ typedef void (^_MIMapViewChange)(void);
 	[self requestChange:^
 	{
 		[_index removeAnnotation:annotation];
-		_flags.removalHandled = NO;
+		_flags.removalHandlingRequired = YES;
 	}];
 }
 
