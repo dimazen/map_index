@@ -26,6 +26,7 @@
 
 #import "MIMapView.h"
 #import "MIAnnotation.h"
+#import "MKAnnotationView+MIExtension.h"
 
 const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 
@@ -63,7 +64,7 @@ const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
 			{
 				if (![target contains:view.annotation]) continue;
 
-				[view setCenter:[self.mapView convertCoordinate:target.coordinate toPointToView:view.superview]];
+				[view setAdjustedCenter:[self.mapView convertCoordinate:target.coordinate toPointToView:view.superview]];
 			}
 		}
 

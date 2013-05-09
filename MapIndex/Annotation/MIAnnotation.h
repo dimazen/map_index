@@ -26,7 +26,16 @@
 #import "MIAnnotation.h"
 #import "MIQuadTree.h"
 
-@interface MIAnnotation : NSObject <MKAnnotation>
+@protocol MIAnnotation <MKAnnotation>
+
+@property (nonatomic, readonly) NSUInteger count;
+- (BOOL)contains:(id <MKAnnotation>)annotation;
+- (NSSet *)allAnnotations;
+- (id <MKAnnotation>)anyAnnotation;
+
+@end
+
+@interface MIAnnotation : NSObject <MIAnnotation>
 
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
 

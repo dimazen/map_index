@@ -1,7 +1,8 @@
 //
-// MIAscendingTransaction.m
+// MKAnnotationView+MIExtension.m
+// JetBrains AppCode
 //
-// Copyright (c) 2013 Shemet Dmitriy
+// Copyright (c) 2013 Shemet Dmitriy 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,47 +22,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MIAscendingTransaction.h"
-#import "MITransaction+Subclass.h"
-
-#import "MIMapView.h"
-#import "MIAnnotation.h"
 #import "MKAnnotationView+MIExtension.h"
 
-const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
+@implementation MKAnnotationView (MIExtension)
 
-@implementation MIAscendingTransaction
+@dynamic adjustedCenter;
 
-#pragma mark - Animation
-
-- (void)performAddAnimation:(NSArray *)views
+- (void)setAdjustedCenter:(CGPoint)adjustedCenter
 {
-	[self lock];
+	adjustedCenter.x += self.centerOffset.x;
+	adjustedCenter.y += self.centerOffset.y;
 
-	for (MKAnnotationView *view in views)
-	{
-		[view setAlpha:0.f];
+	[self setCenter:adjustedCenter];
+}
 
-		for (MIAnnotation *source in self.source)
-		{
-			if (!([source class] == [MIAnnotation class] && [source contains:view.annotation])) continue;
+- (CGPoint)adjustedCenter
+{
+	CGPoint center = self.center;
+	center.x -= self.centerOffset.x;
+	center.y -= self.centerOffset.y;
 
-			[view setAdjustedCenter:[self.mapView convertCoordinate:source.coordinate toPointToView:view.superview]];
-		}
-	}
-
-	[UIView animateWithDuration:_MIAscendingTransactionDuration animations:^
-	{
-		for (MKAnnotationView *view in views)
-		{
-			[view setAdjustedCenter:[self.mapView convertCoordinate:view.annotation.coordinate toPointToView:view.superview]];
-			[view setAlpha:1.f];
-		}
-
-	} completion:^(BOOL finished)
-	{
-		[self unlock];
-	}];
+	return center;
 }
 
 @end
