@@ -164,7 +164,7 @@ typedef void (^_MIMapViewChange)(void);
 {
 	double mapWidthInPixels = self.bounds.size.width;
 	double zoomScale = self.region.span.longitudeDelta * MIMercatorRadius * M_PI / (180.0 * mapWidthInPixels);
-	return (NSUInteger)ceil(MIZoomDepth - log2(zoomScale));
+	return MAX(MIMinimumZoomDepth, (NSUInteger)ceil(MIZoomDepth - log2(zoomScale)));
 }
 
 #pragma mark - Annotations Update Schedule
@@ -231,7 +231,7 @@ typedef void (^_MIMapViewChange)(void);
 
 	__block NSMutableSet *target = [NSMutableSet new];
 	[_index annotationsInMapRect:[self updateAnnotationsRect]
-						   level:level + 1
+						   level:level + MIZoomDepthIncrement
 						callback:^(NSMutableSet *clusters, NSMutableSet *points)
 	{
 		[_clusters setSet:clusters];
