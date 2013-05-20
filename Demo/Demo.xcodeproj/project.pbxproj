@@ -26,6 +26,7 @@
 		69ED749AD5870303B363B2FE /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 69ED793ABF79DB65F5F674EC /* ViewController_iPad.xib */; };
 		69ED74A8E0119EC422CAD8D1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69ED72C2368CE8F3F555EBC1 /* CoreGraphics.framework */; };
 		69ED74BC80974D703F1F2236 /* Airport.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED7CD9A37D60889E8370D7 /* Airport.m */; };
+		69ED7623CCB2E907661EA180 /* MKAnnotationView+MIExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED7C825D1B37AE9DF4C77B /* MKAnnotationView+MIExtension.m */; };
 		69ED790C2B8AA18630A5C8A7 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 69ED7530017BE08590E57413 /* Default@2x.png */; };
 		69ED7925C3022F2848D58D8C /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 69ED7749F06D1ADE4992248A /* Default-568h@2x.png */; };
 		69ED7B02D5EEA95A9EC60BE0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED7CC75999878B39265286 /* main.m */; };
@@ -67,6 +68,7 @@
 		2CE409FE1737E2E00048E984 /* MITransactionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITransactionFactory.h; sourceTree = "<group>"; };
 		2CE409FF1737E2E00048E984 /* MITransactionFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MITransactionFactory.m; sourceTree = "<group>"; };
 		69ED70D4CFC9D3B3F5007D06 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		69ED70DC64481953DD9E2D4F /* MKAnnotationView+MIExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+MIExtension.h"; sourceTree = "<group>"; };
 		69ED716CBED40DDB4AB2C484 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		69ED72C2368CE8F3F555EBC1 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		69ED73ECB39C0107B74037F2 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPhone.xib; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 		69ED78DADF2F8982CAFB38E5 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		69ED7ACD1EF9D91C88CB8739 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		69ED7B215176E33A25DB9B02 /* Airport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Airport.h; sourceTree = "<group>"; };
+		69ED7C825D1B37AE9DF4C77B /* MKAnnotationView+MIExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MKAnnotationView+MIExtension.m"; sourceTree = "<group>"; };
 		69ED7CC75999878B39265286 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		69ED7CD9A37D60889E8370D7 /* Airport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Airport.m; sourceTree = "<group>"; };
 		69ED7DD6C450037B88AD4CBB /* Demo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = "Demo-Info.plist"; sourceTree = "<group>"; };
@@ -133,6 +136,8 @@
 			children = (
 				2CE409E11737E2E00048E984 /* NSInvocation+MIExtension.h */,
 				2CE409E21737E2E00048E984 /* NSInvocation+MIExtension.m */,
+				69ED7C825D1B37AE9DF4C77B /* MKAnnotationView+MIExtension.m */,
+				69ED70DC64481953DD9E2D4F /* MKAnnotationView+MIExtension.h */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -338,6 +343,7 @@
 				2CE40A081737E2E00048E984 /* MIDescendingTransaction.m in Sources */,
 				2CE40A091737E2E00048E984 /* MIRegularTransaction.m in Sources */,
 				2CE40A0A1737E2E00048E984 /* MITransactionFactory.m in Sources */,
+				69ED7623CCB2E907661EA180 /* MKAnnotationView+MIExtension.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
