@@ -1,4 +1,4 @@
-## Map Index
+## Map Index (MIT License)
 Fast map clusterization build on top of [Region QuadTree](http://en.wikipedia.org/wiki/Quadtree).
 
 ## Requirements 
@@ -113,3 +113,7 @@ Example:
 	}];
 } 
 ```
+
+
+###Special thanks to SuperPin: 
+I've used Airports.plist & Airport.m from their DEMO. They also inspired me to rewrite my Obj-C implementation of QuadTree (which was incredibly slow). All Profiling stuff has been done in comparsion with SuperPin, so big thanks to them.
