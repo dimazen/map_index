@@ -2,7 +2,7 @@
 Fast map clusterization build on top of [Region QuadTree](http://en.wikipedia.org/wiki/Quadtree).
 
 ## Requirements 
-* Minimum iOS 5.0+. Recommended iOS 6.0+ due to changes in MKMapView callback mechanics. 
+* Minimum iOS 6.0+ due to changes in MKMapView callback mechanics. 
 * MapKit.framework
 
 ## Usage
