@@ -20,8 +20,6 @@
 {
     [super viewDidLoad];
 
-	[_mapView setDelegate:self];
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^
     {
         NSArray *airports = [Airport allAirports];
@@ -30,19 +28,6 @@
             [_mapView addAnnotations:airports];
         });
     });
-}
-
-- (void)viewDidUnload
-{
-	[super viewDidUnload];
-
-	_mapView = nil;
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view

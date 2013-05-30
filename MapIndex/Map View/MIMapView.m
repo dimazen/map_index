@@ -122,6 +122,9 @@ typedef void (^_MIMapViewChange)(void);
 
 	_targetDelegate = delegate;
 
+	[super setDelegate:nil];
+	[super setDelegate:self];
+
 	[self initDelegateFlags];
 }
 
