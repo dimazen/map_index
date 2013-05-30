@@ -89,6 +89,7 @@
 		69ED7E43BA9FD6140BDAA57A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		69ED7F178AE4E3EF414EFF2A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPad.xib; sourceTree = "<group>"; };
 		69ED7F7C65FC5A415B77599F /* Airports.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Airports.plist; sourceTree = "<group>"; };
+		9F73899417574A3D00C79FF3 /* MapIndex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapIndex.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +116,7 @@
 				2CE409E91737E2E00048E984 /* Map View */,
 				2CE409EF1737E2E00048E984 /* MITypes.h */,
 				2CE409F01737E2E00048E984 /* MIUtility.h */,
+				9F73899417574A3D00C79FF3 /* MapIndex.h */,
 				2CE409F11737E2E00048E984 /* Transactions */,
 			);
 			name = MapIndex;

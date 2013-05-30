@@ -5,8 +5,7 @@
 
 #import "ViewController.h"
 #import "Airport.h"
-#import "MIMapView.h"
-#import "MIAnnotation.h"
+#import "MapIndex.h"
 
 @interface ViewController () <MKMapViewDelegate>
 {
