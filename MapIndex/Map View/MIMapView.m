@@ -35,15 +35,11 @@
 #import "NSInvocation+MIExtension.h"
 #import "MIAnnotation+Package.h"
 
-#import <libkern/OSAtomic.h>
-
 const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
 
 typedef void (^_MIMapViewChange)(void);
 
 @interface MIMapView ()
-
-- (void)finalizeLoopObserver;
 
 - (void)initDelegateFlags;
 - (void)commonInitialization;
@@ -56,7 +52,7 @@ typedef void (^_MIMapViewChange)(void);
 
 - (MKMapRect)updateAnnotationsRect;
 - (void)prepareAnnotationsUpdate;
-- (void)updateAnnotations;
+- (void)updateVisibleState;
 
 @property (nonatomic, readonly) NSUInteger zoomLevel;
 
@@ -65,11 +61,6 @@ typedef void (^_MIMapViewChange)(void);
 @implementation MIMapView
 
 #pragma mark - Init
-
-- (void)dealloc
-{
-	[self finalizeLoopObserver];
-}
 
 - (void)commonInitialization
 {
@@ -170,37 +161,15 @@ typedef void (^_MIMapViewChange)(void);
 	return MAX(MIMinimumZoomDepth, (NSUInteger)ceil(MIZoomDepth - log2(zoomScale)));
 }
 
-#pragma mark - Annotations Update Schedule
-
-- (void)finalizeLoopObserver
-{
-	if (_loopObserver != NULL)
-	{
-		CFRunLoopRemoveObserver(CFRunLoopGetCurrent(), _loopObserver, kCFRunLoopCommonModes);
-		CFRelease(_loopObserver);
-		_loopObserver = NULL;
-	}
-}
-
-- (void)setUpdateVisibleAnnotations
-{
-	if (_loopObserver == NULL && ![self isLocked])
-	{
-		void (^handler)(CFRunLoopObserverRef, CFRunLoopActivity) = ^(CFRunLoopObserverRef observer, CFRunLoopActivity activity)
-		{
-			[self finalizeLoopObserver];
-			[self updateAnnotations];
-		};
-
-		_loopObserver = CFRunLoopObserverCreateWithHandler(NULL, kCFRunLoopBeforeWaiting, false, 0, handler);
-		if (_loopObserver != NULL)
-		{
-			CFRunLoopAddObserver(CFRunLoopGetCurrent(), _loopObserver, kCFRunLoopCommonModes);
-		}
-	}
-}
-
 #pragma mark - Annotations Update
+
+- (void)setNeedsUpdateVisibleState
+{
+    if ([self isLocked]) return;
+
+    [MIMapView cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateVisibleState) object:nil];
+    [self performSelector:@selector(updateVisibleState) withObject:nil afterDelay:0.0];
+}
 
 - (MKMapRect)updateAnnotationsRect
 {
@@ -224,8 +193,8 @@ typedef void (^_MIMapViewChange)(void);
 	}
 }
 
-- (void)updateAnnotations
-{
+- (void)updateVisibleState
+{    
 	MIAssert2(![self isLocked], @"%p: Attemp to update annotation with active transaction: %@", (__bridge void *)self, _transaction);
 
 	[self prepareAnnotationsUpdate];
@@ -328,7 +297,7 @@ typedef void (^_MIMapViewChange)(void);
 	{
 		change();
 
-		[self setUpdateVisibleAnnotations];
+        [self setNeedsUpdateVisibleState];
 	}
 	else
 	{
@@ -430,7 +399,7 @@ typedef void (^_MIMapViewChange)(void);
 
 - (void)mapView:(MKMapView *)mapView regionWillChangeAnimated:(BOOL)animated
 {
-	[_updateAnnotationsTimer invalidate];
+    [MIMapView cancelPreviousPerformRequestsWithTarget:self selector:@selector(setNeedsUpdateVisibleState) object:nil];
 
 	if (_flags.delegateRegionWillChangeAnimated)
 	{
@@ -440,11 +409,8 @@ typedef void (^_MIMapViewChange)(void);
 
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated
 {
-	NSInvocation *invocation = [NSInvocation invocationForTarget:self selector:@selector(setUpdateVisibleAnnotations)];
-
-	_updateAnnotationsTimer = [NSTimer scheduledTimerWithTimeInterval:_MIMapViewUpdateDelay
-														   invocation:invocation
-															  repeats:NO];
+    [MIMapView cancelPreviousPerformRequestsWithTarget:self selector:@selector(setNeedsUpdateVisibleState) object:nil];
+    [self performSelector:@selector(setNeedsUpdateVisibleState) withObject:nil afterDelay:_MIMapViewUpdateDelay];
 
 	if (_flags.delegateRegionDidChangeAnimated)
 	{
@@ -465,7 +431,7 @@ typedef void (^_MIMapViewChange)(void);
 	MIAssert1(_transaction != nil, @"%p: Invalid lock: nil transaction", (__bridge void *)self);
 	MIAssert3(_transaction == transaction, @"%p: Invalid lock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
 
-	OSAtomicIncrement32(&_lockCount);
+    _lockCount++;
 }
 
 - (void)unlock:(MITransaction *)transaction
@@ -474,13 +440,15 @@ typedef void (^_MIMapViewChange)(void);
 	MIAssert1(_transaction != nil, @"%p: Invalid unlock: nil transaction", (__bridge void *)self);
 	MIAssert3(_transaction == transaction, @"%p: Invalid unlock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
 
-	if (OSAtomicDecrement32(&_lockCount) == 0)
+    _lockCount--;
+
+    if (_lockCount == 0)
 	{
 		[self finalizeTransaction:transaction];
 
 		if (_deferredChanges.count > 0)
 		{
-			[self setUpdateVisibleAnnotations];
+            [self setNeedsUpdateVisibleState];
 		}
 	}
 }

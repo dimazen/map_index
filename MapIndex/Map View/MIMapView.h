@@ -45,16 +45,13 @@
 	NSUInteger _annotationsLevel;
 	NSMutableSet *_clusters;
 
-	int32_t _lockCount;
+	NSInteger _lockCount;
   	MITransaction *_transaction;
 
 	NSMutableArray *_deferredChanges;
-
-	__weak NSTimer *_updateAnnotationsTimer;
-	CFRunLoopObserverRef _loopObserver;
 }
 
-- (void)setUpdateVisibleAnnotations;
+- (void)setNeedsUpdateVisibleState;
 
 @property (nonatomic, strong) MITransactionFactory *transactionFactory;
 
