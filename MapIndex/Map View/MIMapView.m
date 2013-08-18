@@ -253,8 +253,8 @@ typedef void (^_MIMapViewChange)(void);
 
     MIChangeType changeType = MIChangeTypeFromNSComparisonResult([@(_annotationsLevel) compare:@(level)]);
 	MITransition *transition = [self.transitionFactory transitionWithTarget:[target allObjects]
-                                                                      source:[source allObjects]
-                                                                  changeType:changeType];
+                                                                     source:[source allObjects]
+                                                                 changeType:changeType];
     [self processTransition:transition level:level];
 }
 

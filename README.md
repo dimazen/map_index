@@ -29,43 +29,43 @@ To provide own annotation views for cluster use:
 
 ## Custom animation
 You're able to provide <b>your own animation<b> for zoom-in, move, zoom-out. 
-For these puproses MIMapView declare <br>@property (nonatomic, strong) MITransactionFactory *transactionFactory;
+For these puproses MIMapView declare <br>@property (nonatomic, strong) MITransitionFactory *transitionFactory;
 
-How to use: <br>1. Subclass <br>2. Change default transactions factory to your one
+How to use: <br>1. Subclass <br>2. Change default transitions factory to your one
 
 ```objective-c
-- (MITransaction *)transactionWithTarget:(NSArray *)target source:(NSArray *)source order:(NSComparisonResult)order
+- (MITransition *)transitionWithTarget:(NSArray *)target source:(NSArray *)source changeType:(MIChangeType)changeType
 {
-	switch (order)
+	switch (changeType)
 	{
-		case NSOrderedSame:
-			return transaction for region change without zoom-in/zoom-out
+		case MIChangeTypeMove:
+			return transition for region change without zoom-in/zoom-out
 			break;
 
-		case NSOrderedAscending:
-  		return transaction for zoom-in
+		case MIChangeTypeZoomIn:
+  		return transition for zoom-in
 			break;
 
-		case NSOrderedDescending:
-			return transaction for zoom-out
+		case MIChangeTypeZoomOut:
+			return transition for zoom-out
 			break;
 	}
 }
 ```
 
-###MITransaction
+###MITransition
 This class is responsible for add/remove of target annotations.
 Each instance provide target annotations (which you have to add) and source annotations (which you have to remove).
 
 Purpose of this class is to handle annotations change animated without any pain.
-###MITransaction Subclass
-In case of custom transaction you have to implement next methods:
+###MITransition Subclass
+In case of custom Transition you have to implement next methods:
 
 ```objective-c
 - (void)perform
 {
-  // Transaction invoked. 
-  // For example if you're implementing zoom-in transaction - you need to add target annotations
+  // Transition invoked. 
+  // For example if you're implementing zoom-in transition - you need to add target annotations
   if (self.target.count > 0)
 	{
 		[self addAnnotations:self.target];
@@ -89,7 +89,7 @@ In case of custom transaction you have to implement next methods:
 
 <b>Important notes:<b>
 Animation usually takes longer than 0 seconds. 
-To prevent map's data change during animation you can lock/unlock transaction in appropriate places.
+To prevent map's data change during animation you can lock/unlock transition in appropriate places.
 It guarantees, that target annotations still on the map (but your code deleted some of them)
 Example:
 
@@ -100,7 +100,7 @@ Example:
 
   [views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
-	[UIView animateWithDuration:_MIRegularTransactionDuration animations:^
+	[UIView animateWithDuration:_MIRegularTransitionDuration animations:^
 	{
 		for (MKAnnotationView *view in views)
 		{
