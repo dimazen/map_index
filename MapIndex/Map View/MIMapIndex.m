@@ -39,6 +39,8 @@
 	NSMutableSet *_pointsContainer;
 }
 
+- (void)didReceiveMemoryWarning;
+
 - (MIAnnotation *)dequeueAnnotation;
 
 @end
@@ -47,6 +49,10 @@
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidReceiveMemoryWarningNotification
+                                                  object:nil];
+    
 	MIQuadTreeFree(_tree);
 }
 
@@ -58,9 +64,21 @@
 		_tree = MIQuadTreeCreate(MKMapRectWorld);
 		_annotations = [NSMutableSet new];
 		_annotationsPool = [NSMutableArray new];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didReceiveMemoryWarning)
+                                                     name:UIApplicationDidReceiveMemoryWarningNotification
+                                                   object:nil];
 	}
 
 	return self;
+}
+
+#pragma mark - Memory Warning 
+
+- (void)didReceiveMemoryWarning
+{
+    [_annotationsPool removeAllObjects];
 }
 
 #pragma mark - Index Modifying
@@ -118,7 +136,7 @@
 	return [_annotations allObjects];
 }
 
-void _MISpacialIndexAnnotationsCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
+void _MIMapIndexAnnotationsCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
 {
 	[(__bridge NSMutableSet *)traverse->context addObject:(__bridge id <MKAnnotation>)point.identifier];
 }
@@ -128,7 +146,7 @@ void _MISpacialIndexAnnotationsCallback(MIPoint point, MITraverseResultType resu
 	NSMutableSet *result = [NSMutableSet new];
 	MITraverse traverse =
 	{
-		.callback = _MISpacialIndexAnnotationsCallback,
+		.callback = _MIMapIndexAnnotationsCallback,
 		.context = (__bridge void *)result,
 	};
 	MIQuadTreeTraversRectPoints(_tree, mapRect, &traverse);
@@ -138,7 +156,7 @@ void _MISpacialIndexAnnotationsCallback(MIPoint point, MITraverseResultType resu
 
 #pragma mark - Level Annotations Access
 
-void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
+void _MIMapIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType resultType, MITraverse *traverse)
 {
 	MIMapIndex *self = (__bridge MIMapIndex *)traverse->context;
 
@@ -158,7 +176,7 @@ void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType
 {
 	MITraverse traverse =
 	{
-		.callback = _MISpacialIndexLevelAnnotationsCallback,
+		.callback = _MIMapIndexLevelAnnotationsCallback,
 		.context = (__bridge void *)self,
 	};
 
@@ -194,7 +212,7 @@ void _MISpacialIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType
 {
 	for (MIAnnotation *annotation in annotations)
 	{
-		if ([annotation class] == [self class])
+		if ([annotation class] == [MIAnnotation class])
 		{
 			[annotation setContent:NULL];
 			[_annotationsPool addObject:annotation];

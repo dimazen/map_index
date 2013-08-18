@@ -32,7 +32,6 @@
 
 #import <MapKit/MKPinAnnotationView.h>
 
-#import "NSInvocation+MIExtension.h"
 #import "MIAnnotation+Package.h"
 
 const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
@@ -377,7 +376,7 @@ typedef void (^_MIMapViewChange)(void);
 
 	if (annotation == (id <MKAnnotation>)self.userLocation) return nil;
 
-	static NSString * const identifier = @"annotation";
+	static NSString * const identifier = @"mapIndexAnnotation";
 	view = [mapView dequeueReusableAnnotationViewWithIdentifier:identifier];
 	if (view == nil)
 	{

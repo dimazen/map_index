@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		2CE409DA1737E2C70048E984 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CE409D91737E2C70048E984 /* MapKit.framework */; };
 		2CE40A001737E2E00048E984 /* MIAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409DF1737E2E00048E984 /* MIAnnotation.m */; };
-		2CE40A011737E2E00048E984 /* NSInvocation+MIExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409E21737E2E00048E984 /* NSInvocation+MIExtension.m */; };
 		2CE40A021737E2E00048E984 /* MIPointList.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409E61737E2E00048E984 /* MIPointList.m */; };
 		2CE40A031737E2E00048E984 /* MIQuadTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409E81737E2E00048E984 /* MIQuadTree.m */; };
 		2CE40A041737E2E00048E984 /* MIMapIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409EB1737E2E00048E984 /* MIMapIndex.m */; };
@@ -41,8 +40,6 @@
 		2CE409DD1737E2E00048E984 /* MIAnnotation+Package.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MIAnnotation+Package.h"; sourceTree = "<group>"; };
 		2CE409DE1737E2E00048E984 /* MIAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIAnnotation.h; sourceTree = "<group>"; };
 		2CE409DF1737E2E00048E984 /* MIAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIAnnotation.m; sourceTree = "<group>"; };
-		2CE409E11737E2E00048E984 /* NSInvocation+MIExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSInvocation+MIExtension.h"; sourceTree = "<group>"; };
-		2CE409E21737E2E00048E984 /* NSInvocation+MIExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSInvocation+MIExtension.m"; sourceTree = "<group>"; };
 		2CE409E41737E2E00048E984 /* MIPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIPoint.h; sourceTree = "<group>"; };
 		2CE409E51737E2E00048E984 /* MIPointList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIPointList.h; sourceTree = "<group>"; };
 		2CE409E61737E2E00048E984 /* MIPointList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIPointList.m; sourceTree = "<group>"; };
@@ -136,8 +133,6 @@
 		2CE409E01737E2E00048E984 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				2CE409E11737E2E00048E984 /* NSInvocation+MIExtension.h */,
-				2CE409E21737E2E00048E984 /* NSInvocation+MIExtension.m */,
 				69ED7C825D1B37AE9DF4C77B /* MKAnnotationView+MIExtension.m */,
 				69ED70DC64481953DD9E2D4F /* MKAnnotationView+MIExtension.h */,
 			);
@@ -335,7 +330,6 @@
 				69ED725329D366AA49181504 /* ViewController.m in Sources */,
 				69ED74BC80974D703F1F2236 /* Airport.m in Sources */,
 				2CE40A001737E2E00048E984 /* MIAnnotation.m in Sources */,
-				2CE40A011737E2E00048E984 /* NSInvocation+MIExtension.m in Sources */,
 				2CE40A021737E2E00048E984 /* MIPointList.m in Sources */,
 				2CE40A031737E2E00048E984 /* MIQuadTree.m in Sources */,
 				2CE40A041737E2E00048E984 /* MIMapIndex.m in Sources */,
@@ -413,6 +407,7 @@
 				INFOPLIST_FILE = "Demo/Demo-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "5A3ECB5E-DDDC-408C-B755-09BA12A953C7";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -425,6 +420,7 @@
 				INFOPLIST_FILE = "Demo/Demo-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "5A3ECB5E-DDDC-408C-B755-09BA12A953C7";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
