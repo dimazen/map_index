@@ -13,11 +13,11 @@
 		2CE40A031737E2E00048E984 /* MIQuadTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409E81737E2E00048E984 /* MIQuadTree.m */; };
 		2CE40A041737E2E00048E984 /* MIMapIndex.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409EB1737E2E00048E984 /* MIMapIndex.m */; };
 		2CE40A051737E2E00048E984 /* MIMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409EE1737E2E00048E984 /* MIMapView.m */; };
-		2CE40A061737E2E00048E984 /* MITransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409F51737E2E00048E984 /* MITransaction.m */; };
-		2CE40A071737E2E00048E984 /* MIAscendingTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409F81737E2E00048E984 /* MIAscendingTransaction.m */; };
-		2CE40A081737E2E00048E984 /* MIDescendingTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409FA1737E2E00048E984 /* MIDescendingTransaction.m */; };
-		2CE40A091737E2E00048E984 /* MIRegularTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409FD1737E2E00048E984 /* MIRegularTransaction.m */; };
-		2CE40A0A1737E2E00048E984 /* MITransactionFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409FF1737E2E00048E984 /* MITransactionFactory.m */; };
+		2CE40A061737E2E00048E984 /* MITransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409F51737E2E00048E984 /* MITransition.m */; };
+		2CE40A071737E2E00048E984 /* MIZoomInTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409F81737E2E00048E984 /* MIZoomInTransition.m */; };
+		2CE40A081737E2E00048E984 /* MIZoomOutTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409FA1737E2E00048E984 /* MIZoomOutTransition.m */; };
+		2CE40A091737E2E00048E984 /* MIMoveTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409FD1737E2E00048E984 /* MIMoveTransition.m */; };
+		2CE40A0A1737E2E00048E984 /* MITransitionFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE409FF1737E2E00048E984 /* MITransitionFactory.m */; };
 		69ED70E379802FABAF980595 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED7ACD1EF9D91C88CB8739 /* AppDelegate.m */; };
 		69ED725329D366AA49181504 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69ED77D79310400A1678E771 /* ViewController.m */; };
 		69ED72DAC6AACE50FEF44257 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 69ED78DADF2F8982CAFB38E5 /* Default.png */; };
@@ -47,23 +47,23 @@
 		2CE409E81737E2E00048E984 /* MIQuadTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIQuadTree.m; sourceTree = "<group>"; };
 		2CE409EA1737E2E00048E984 /* MIMapIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIMapIndex.h; sourceTree = "<group>"; };
 		2CE409EB1737E2E00048E984 /* MIMapIndex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIMapIndex.m; sourceTree = "<group>"; };
-		2CE409EC1737E2E00048E984 /* MIMapView+MITransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MIMapView+MITransaction.h"; sourceTree = "<group>"; };
+		2CE409EC1737E2E00048E984 /* MIMapView+MITransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MIMapView+MITransition.h"; sourceTree = "<group>"; };
 		2CE409ED1737E2E00048E984 /* MIMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIMapView.h; sourceTree = "<group>"; };
 		2CE409EE1737E2E00048E984 /* MIMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIMapView.m; sourceTree = "<group>"; };
 		2CE409EF1737E2E00048E984 /* MITypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITypes.h; sourceTree = "<group>"; };
 		2CE409F01737E2E00048E984 /* MIUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIUtility.h; sourceTree = "<group>"; };
-		2CE409F31737E2E00048E984 /* MITransaction+Subclass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MITransaction+Subclass.h"; sourceTree = "<group>"; };
-		2CE409F41737E2E00048E984 /* MITransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITransaction.h; sourceTree = "<group>"; };
-		2CE409F51737E2E00048E984 /* MITransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MITransaction.m; sourceTree = "<group>"; };
-		2CE409F71737E2E00048E984 /* MIAscendingTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIAscendingTransaction.h; sourceTree = "<group>"; };
-		2CE409F81737E2E00048E984 /* MIAscendingTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIAscendingTransaction.m; sourceTree = "<group>"; };
-		2CE409F91737E2E00048E984 /* MIDescendingTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDescendingTransaction.h; sourceTree = "<group>"; };
-		2CE409FA1737E2E00048E984 /* MIDescendingTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIDescendingTransaction.m; sourceTree = "<group>"; };
-		2CE409FB1737E2E00048E984 /* MIRegularTransaction+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MIRegularTransaction+Protected.h"; sourceTree = "<group>"; };
-		2CE409FC1737E2E00048E984 /* MIRegularTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIRegularTransaction.h; sourceTree = "<group>"; };
-		2CE409FD1737E2E00048E984 /* MIRegularTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIRegularTransaction.m; sourceTree = "<group>"; };
-		2CE409FE1737E2E00048E984 /* MITransactionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITransactionFactory.h; sourceTree = "<group>"; };
-		2CE409FF1737E2E00048E984 /* MITransactionFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MITransactionFactory.m; sourceTree = "<group>"; };
+		2CE409F31737E2E00048E984 /* MITransition+Subclass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MITransition+Subclass.h"; sourceTree = "<group>"; };
+		2CE409F41737E2E00048E984 /* MITransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITransition.h; sourceTree = "<group>"; };
+		2CE409F51737E2E00048E984 /* MITransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MITransition.m; sourceTree = "<group>"; };
+		2CE409F71737E2E00048E984 /* MIZoomInTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIZoomInTransition.h; sourceTree = "<group>"; };
+		2CE409F81737E2E00048E984 /* MIZoomInTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIZoomInTransition.m; sourceTree = "<group>"; };
+		2CE409F91737E2E00048E984 /* MIZoomOutTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIZoomOutTransition.h; sourceTree = "<group>"; };
+		2CE409FA1737E2E00048E984 /* MIZoomOutTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIZoomOutTransition.m; sourceTree = "<group>"; };
+		2CE409FB1737E2E00048E984 /* MIMoveTransition+Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MIMoveTransition+Protected.h"; sourceTree = "<group>"; };
+		2CE409FC1737E2E00048E984 /* MIMoveTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIMoveTransition.h; sourceTree = "<group>"; };
+		2CE409FD1737E2E00048E984 /* MIMoveTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MIMoveTransition.m; sourceTree = "<group>"; };
+		2CE409FE1737E2E00048E984 /* MITransitionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MITransitionFactory.h; sourceTree = "<group>"; };
+		2CE409FF1737E2E00048E984 /* MITransitionFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MITransitionFactory.m; sourceTree = "<group>"; };
 		69ED70D4CFC9D3B3F5007D06 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		69ED70DC64481953DD9E2D4F /* MKAnnotationView+MIExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MKAnnotationView+MIExtension.h"; sourceTree = "<group>"; };
 		69ED716CBED40DDB4AB2C484 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -114,7 +114,7 @@
 				2CE409EF1737E2E00048E984 /* MITypes.h */,
 				2CE409F01737E2E00048E984 /* MIUtility.h */,
 				9F73899417574A3D00C79FF3 /* MapIndex.h */,
-				2CE409F11737E2E00048E984 /* Transactions */,
+				2CE409F11737E2E00048E984 /* Transition */,
 			);
 			name = MapIndex;
 			path = ../MapIndex;
@@ -156,30 +156,30 @@
 			children = (
 				2CE409EA1737E2E00048E984 /* MIMapIndex.h */,
 				2CE409EB1737E2E00048E984 /* MIMapIndex.m */,
-				2CE409EC1737E2E00048E984 /* MIMapView+MITransaction.h */,
+				2CE409EC1737E2E00048E984 /* MIMapView+MITransition.h */,
 				2CE409ED1737E2E00048E984 /* MIMapView.h */,
 				2CE409EE1737E2E00048E984 /* MIMapView.m */,
 			);
 			path = "Map View";
 			sourceTree = "<group>";
 		};
-		2CE409F11737E2E00048E984 /* Transactions */ = {
+		2CE409F11737E2E00048E984 /* Transition */ = {
 			isa = PBXGroup;
 			children = (
 				2CE409F21737E2E00048E984 /* Base */,
 				2CE409F61737E2E00048E984 /* Inherited */,
-				2CE409FE1737E2E00048E984 /* MITransactionFactory.h */,
-				2CE409FF1737E2E00048E984 /* MITransactionFactory.m */,
+				2CE409FE1737E2E00048E984 /* MITransitionFactory.h */,
+				2CE409FF1737E2E00048E984 /* MITransitionFactory.m */,
 			);
-			path = Transactions;
+			path = Transition;
 			sourceTree = "<group>";
 		};
 		2CE409F21737E2E00048E984 /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				2CE409F31737E2E00048E984 /* MITransaction+Subclass.h */,
-				2CE409F41737E2E00048E984 /* MITransaction.h */,
-				2CE409F51737E2E00048E984 /* MITransaction.m */,
+				2CE409F31737E2E00048E984 /* MITransition+Subclass.h */,
+				2CE409F41737E2E00048E984 /* MITransition.h */,
+				2CE409F51737E2E00048E984 /* MITransition.m */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -187,13 +187,13 @@
 		2CE409F61737E2E00048E984 /* Inherited */ = {
 			isa = PBXGroup;
 			children = (
-				2CE409F71737E2E00048E984 /* MIAscendingTransaction.h */,
-				2CE409F81737E2E00048E984 /* MIAscendingTransaction.m */,
-				2CE409F91737E2E00048E984 /* MIDescendingTransaction.h */,
-				2CE409FA1737E2E00048E984 /* MIDescendingTransaction.m */,
-				2CE409FB1737E2E00048E984 /* MIRegularTransaction+Protected.h */,
-				2CE409FC1737E2E00048E984 /* MIRegularTransaction.h */,
-				2CE409FD1737E2E00048E984 /* MIRegularTransaction.m */,
+				2CE409F71737E2E00048E984 /* MIZoomInTransition.h */,
+				2CE409F81737E2E00048E984 /* MIZoomInTransition.m */,
+				2CE409F91737E2E00048E984 /* MIZoomOutTransition.h */,
+				2CE409FA1737E2E00048E984 /* MIZoomOutTransition.m */,
+				2CE409FB1737E2E00048E984 /* MIMoveTransition+Protected.h */,
+				2CE409FC1737E2E00048E984 /* MIMoveTransition.h */,
+				2CE409FD1737E2E00048E984 /* MIMoveTransition.m */,
 			);
 			path = Inherited;
 			sourceTree = "<group>";
@@ -334,11 +334,11 @@
 				2CE40A031737E2E00048E984 /* MIQuadTree.m in Sources */,
 				2CE40A041737E2E00048E984 /* MIMapIndex.m in Sources */,
 				2CE40A051737E2E00048E984 /* MIMapView.m in Sources */,
-				2CE40A061737E2E00048E984 /* MITransaction.m in Sources */,
-				2CE40A071737E2E00048E984 /* MIAscendingTransaction.m in Sources */,
-				2CE40A081737E2E00048E984 /* MIDescendingTransaction.m in Sources */,
-				2CE40A091737E2E00048E984 /* MIRegularTransaction.m in Sources */,
-				2CE40A0A1737E2E00048E984 /* MITransactionFactory.m in Sources */,
+				2CE40A061737E2E00048E984 /* MITransition.m in Sources */,
+				2CE40A071737E2E00048E984 /* MIZoomInTransition.m in Sources */,
+				2CE40A081737E2E00048E984 /* MIZoomOutTransition.m in Sources */,
+				2CE40A091737E2E00048E984 /* MIMoveTransition.m in Sources */,
+				2CE40A0A1737E2E00048E984 /* MITransitionFactory.m in Sources */,
 				69ED7623CCB2E907661EA180 /* MKAnnotationView+MIExtension.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

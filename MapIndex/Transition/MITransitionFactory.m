@@ -1,5 +1,5 @@
 //
-// MITransaction.h
+// MITransitionFactory.m
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,17 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MITransitionFactory.h"
 
-@class MIMapView;
+#import "MIMoveTransition.h"
+#import "MIZoomInTransition.h"
+#import "MIZoomOutTransition.h"
 
-@interface MITransaction : NSObject
+@implementation MITransitionFactory
 
-@property (nonatomic, weak) MIMapView *mapView;
+- (MITransition *)transitionWithTarget:(NSArray *)target source:(NSArray *)source changeType:(MIChangeType)changeType
+{
+	Class transitionClass = nil;
+	switch (changeType)
+	{
+        case MIChangeTypeUndefined:
+		case MIChangeTypeMove:
+			transitionClass = [MIMoveTransition class];
+			break;
 
-@property (nonatomic, strong, readonly) NSArray *target;
-@property (nonatomic, strong, readonly) NSArray *source;
+		case MIChangeTypeZoomIn:
+			transitionClass = [MIZoomInTransition class];
+			break;
 
-- (id)initWithTarget:(NSArray *)target source:(NSArray *)source;
+		case MIChangeTypeZoomOut:
+			transitionClass = [MIZoomOutTransition class];
+			break;
+	}
+
+	return [[transitionClass alloc] initWithTarget:target source:source];
+}
 
 @end

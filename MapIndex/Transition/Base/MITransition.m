@@ -1,5 +1,5 @@
 //
-// MITransaction.m
+// MITransition.m
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MITransaction.h"
+#import "MITransition.h"
 
 #import "MIMapView.h"
-#import "MIMapView+MITransaction.h"
+#import "MIMapView+MITransition.h"
 #import "MITypes.h"
 
-@implementation MITransaction
+@implementation MITransition
 
 - (id)initWithTarget:(NSArray *)target source:(NSArray *)source
 {
@@ -51,30 +51,30 @@
 
 @end
 
-@implementation MITransaction (Subclass)
+@implementation MITransition (Subclass)
 
 - (void)addAnnotation:(id <MKAnnotation>)annotation
 {
 	MICParameterAssert(self.mapView != nil);
-	[self.mapView transaction:self addAnnotation:annotation];
+    [self.mapView transition:self addAnnotation:annotation];
 }
 
 - (void)addAnnotations:(NSArray *)annotations
 {
 	MICParameterAssert(self.mapView != nil);
-	[self.mapView transaction:self addAnnotations:annotations];
+    [self.mapView transition:self addAnnotations:annotations];
 }
 
 - (void)removeAnnotation:(id <MKAnnotation>)annotation
 {
 	MICParameterAssert(self.mapView != nil);
-	[self.mapView transaction:self removeAnnotation:annotation];
+    [self.mapView transition:self removeAnnotation:annotation];
 }
 
 - (void)removeAnnotations:(NSArray *)annotations
 {
 	MICParameterAssert(self.mapView != nil);
-	[self.mapView transaction:self removeAnnotations:annotations];
+    [self.mapView transition:self removeAnnotations:annotations];
 }
 
 - (void)lock

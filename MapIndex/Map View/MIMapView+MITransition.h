@@ -1,5 +1,5 @@
 //
-// MITransactionFactory.h
+// MIMapView+MITransition.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,12 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MIMapView.h"
 
-#import "MITransaction.h"
+@interface MIMapView (MITransition)
 
-@interface MITransactionFactory : NSObject
+- (void)lock:(MITransition *)transition;
+- (void)unlock:(MITransition *)transition;
+- (BOOL)isLocked;
 
-- (MITransaction *)transactionWithTarget:(NSArray *)target source:(NSArray *)source order:(NSComparisonResult)order;
+#pragma mark - Transition Actions
+
+- (void)transition:(MITransition *)transition addAnnotation:(id <MKAnnotation>)annotation;
+- (void)transition:(MITransition *)transition addAnnotations:(NSArray *)annotations;
+- (void)transition:(MITransition *)transition removeAnnotation:(id <MKAnnotation>)annotation;
+- (void)transition:(MITransition *)transition removeAnnotations:(NSArray *)annotations;
 
 @end

@@ -1,5 +1,5 @@
 //
-// MIMapView+MITransaction.h
+// MITransitionFactory.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,19 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MIMapView.h"
+#import <Foundation/Foundation.h>
 
-@interface MIMapView (MITransaction)
+#import "MITransition.h"
 
-- (void)lock:(MITransaction *)transaction;
-- (void)unlock:(MITransaction *)transaction;
-- (BOOL)isLocked;
+typedef enum
+{
+    MIChangeTypeUndefined,
+    MIChangeTypeMove,
+    MIChangeTypeZoomIn,
+    MIChangeTypeZoomOut,
+} MIChangeType;
 
-#pragma mark - Transaction Actions
+@interface MITransitionFactory : NSObject
 
-- (void)transaction:(MITransaction *)transaction addAnnotation:(id <MKAnnotation>)annotation;
-- (void)transaction:(MITransaction *)transaction addAnnotations:(NSArray *)annotations;
-- (void)transaction:(MITransaction *)transaction removeAnnotation:(id <MKAnnotation>)annotation;
-- (void)transaction:(MITransaction *)transaction removeAnnotations:(NSArray *)annotations;
+- (MITransition *)transitionWithTarget:(NSArray *)target source:(NSArray *)source changeType:(MIChangeType)changeType;
 
 @end

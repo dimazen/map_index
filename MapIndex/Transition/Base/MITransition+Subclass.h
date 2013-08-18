@@ -1,5 +1,5 @@
 //
-// MIRegularTransaction.m
+// MITransition+Subclass.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,11 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MITransaction.h"
+#import "MITransition.h"
 
-@interface MIRegularTransaction : MITransaction
+@protocol MKAnnotation;
+
+@class MIMapView, NSArray;
+
+@interface MITransition (Subclass)
 
 - (void)perform;
 - (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views;
+
+- (void)addAnnotation:(id <MKAnnotation>)annotation;
+- (void)addAnnotations:(NSArray *)annotations;
+- (void)removeAnnotation:(id <MKAnnotation>)annotation;
+- (void)removeAnnotations:(NSArray *)annotations;
+
+- (void)lock;
+- (void)unlock;
 
 @end

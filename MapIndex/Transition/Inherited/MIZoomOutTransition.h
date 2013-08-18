@@ -1,5 +1,5 @@
 //
-// MIAscendingTransaction.h
+// MIZoomOutTransition.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MIRegularTransaction.h"
+#import "MIMoveTransition.h"
 
-@interface MIAscendingTransaction : MIRegularTransaction
+@interface MIZoomOutTransition : MIMoveTransition
 
 @end

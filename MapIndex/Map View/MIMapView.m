@@ -26,13 +26,31 @@
 #import "MIMapIndex.h"
 #import "MIAnnotation.h"
 
-#import "MIMapView+MITransaction.h"
-#import "MITransactionFactory.h"
-#import "MITransaction+Subclass.h"
+#import "MIMapView+MITransition.h"
+#import "MITransitionFactory.h"
+#import "MITransition+Subclass.h"
 
 #import <MapKit/MKPinAnnotationView.h>
 
 #import "MIAnnotation+Package.h"
+
+static inline MIChangeType MIChangeTypeFromNSComparisonResult(NSComparisonResult result)
+{
+    switch (result)
+    {
+        case NSOrderedSame:
+            return MIChangeTypeMove;
+
+        case NSOrderedAscending:
+            return MIChangeTypeZoomIn;
+
+        case NSOrderedDescending:
+            return MIChangeTypeZoomOut;
+
+        default:
+            return MIChangeTypeUndefined;
+    }
+}
 
 const NSTimeInterval _MIMapViewUpdateDelay = 0.2;
 
@@ -46,8 +64,8 @@ typedef void (^_MIMapViewChange)(void);
 - (void)requestChange:(_MIMapViewChange)change;
 - (void)flushDeferredChanges;
 
-- (void)processTransaction:(MITransaction *)transaction level:(NSUInteger)level;
-- (void)finalizeTransaction:(MITransaction *)transaction;
+- (void)processTransition:(MITransition *)transition level:(NSUInteger)level;
+- (void)finalizeTransaction:(MITransition *)transition;
 
 - (MKMapRect)updateAnnotationsRect;
 - (void)prepareAnnotationsUpdate;
@@ -69,7 +87,7 @@ typedef void (^_MIMapViewChange)(void);
 	_annotationsLevel = 0;
 	_clusters = [NSMutableSet new];
 
-	[self setTransactionFactory:[MITransactionFactory new]];
+	[self setTransitionFactory:[MITransitionFactory new]];
 
 	[super setDelegate:self];
 }
@@ -194,7 +212,7 @@ typedef void (^_MIMapViewChange)(void);
 
 - (void)updateVisibleState
 {    
-	MIAssert2(![self isLocked], @"%p: Attemp to update annotation with active transaction: %@", (__bridge void *)self, _transaction);
+	MIAssert2(![self isLocked], @"%p: Attemp to update annotation with active transition: %@", (__bridge void *)self, _transition);
 
 	[self prepareAnnotationsUpdate];
 
@@ -233,53 +251,54 @@ typedef void (^_MIMapViewChange)(void);
 		}
 	}
 
-	MITransaction *transaction = [self.transactionFactory transactionWithTarget:[target allObjects]
-																		 source:[source allObjects]
-																		  order:[@(_annotationsLevel) compare:@(level)]];
-	[self processTransaction:transaction level:level];
+    MIChangeType changeType = MIChangeTypeFromNSComparisonResult([@(_annotationsLevel) compare:@(level)]);
+	MITransition *transition = [self.transitionFactory transitionWithTarget:[target allObjects]
+                                                                      source:[source allObjects]
+                                                                  changeType:changeType];
+    [self processTransition:transition level:level];
 }
 
 #pragma mark - Transactions
 
-- (void)processTransaction:(MITransaction *)transaction level:(NSUInteger)level
+- (void)processTransition:(MITransition *)transition level:(NSUInteger)level
 {
-	_transaction = transaction;
+	_transition = transition;
 	_annotationsLevel = level;
 
-	_flags.transactionAddExpected = _transaction.target.count > 0;
+	_flags.transitionAddExpected = _transition.target.count > 0;
 
-	[transaction setMapView:self];
-	[transaction perform];
+	[transition setMapView:self];
+	[transition perform];
 
-	if (!_flags.transactionAddExpected && ![self isLocked])
+	if (!_flags.transitionAddExpected && ![self isLocked])
 	{
-		[self finalizeTransaction:transaction];
+        [self finalizeTransaction:transition];
 	}
 }
 
-- (void)finalizeTransaction:(MITransaction *)transaction
+- (void)finalizeTransaction:(MITransition *)transition
 {
 	if ([self isLocked])
 	{
-		MIAssert3(_transaction == transaction, @"%p: Invalid finalize for transaction:%@ while active:%@", (__bridge void *)self, transaction, _transaction);
+		MIAssert3(_transition == transition, @"%p: Invalid finalize for transaction:%@ while active:%@", (__bridge void *)self, transition, _transition);
 	}
 
-	[_index revokeAnnotations:transaction.source];
+	[_index revokeAnnotations:transition.source];
 
-	_flags.transactionAddExpected = NO;
+	_flags.transitionAddExpected = NO;
 
-	[_transaction setMapView:nil];
-	_transaction = nil;
+	[_transition setMapView:nil];
+	_transition = nil;
 }
 
 - (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray *)views
 {
-	if (_flags.transactionAddExpected && [[views lastObject] annotation] != self.userLocation)
+	if (_flags.transitionAddExpected && [[views lastObject] annotation] != self.userLocation)
 	{
-		MICParameterAssert(_transaction != nil);
+		MICParameterAssert(_transition != nil);
 
-		_flags.transactionAddExpected = NO;
-		[_transaction mapView:self didAddAnnotationViews:views];
+		_flags.transitionAddExpected = NO;
+		[_transition mapView:self didAddAnnotationViews:views];
 	}
 
 	if (_flags.delegateDidAddAnnotationViews)
@@ -292,7 +311,7 @@ typedef void (^_MIMapViewChange)(void);
 
 - (void)requestChange:(_MIMapViewChange)change
 {
-	if (_transaction == nil)
+	if (_transition == nil)
 	{
 		change();
 
@@ -421,29 +440,29 @@ typedef void (^_MIMapViewChange)(void);
 
 
 
-@implementation MIMapView (MITransaction)
+@implementation MIMapView (MITransition)
 
 #pragma mark - Lock
 
-- (void)lock:(MITransaction *)transaction
+- (void)lock:(MITransition *)transition
 {
-	MIAssert1(_transaction != nil, @"%p: Invalid lock: nil transaction", (__bridge void *)self);
-	MIAssert3(_transaction == transaction, @"%p: Invalid lock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
+	MIAssert1(_transition != nil, @"%p: Invalid lock: nil transaction", (__bridge void *)self);
+	MIAssert3(_transition == transition, @"%p: Invalid lock transition: %@ while active:%@", (__bridge void *)self, transition, _transition);
 
     _lockCount++;
 }
 
-- (void)unlock:(MITransaction *)transaction
+- (void)unlock:(MITransition *)transition
 {
 	MIAssert1([self isLocked], @"%p: Already unlocked", (__bridge void *)self);
-	MIAssert1(_transaction != nil, @"%p: Invalid unlock: nil transaction", (__bridge void *)self);
-	MIAssert3(_transaction == transaction, @"%p: Invalid unlock transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
+	MIAssert1(_transition != nil, @"%p: Invalid unlock: nil transition", (__bridge void *)self);
+	MIAssert3(_transition == transition, @"%p: Invalid unlock transition: %@ while active:%@", (__bridge void *)self, transition, _transition);
 
     _lockCount--;
 
     if (_lockCount == 0)
 	{
-		[self finalizeTransaction:transaction];
+        [self finalizeTransaction:transition];
 
 		if (_deferredChanges.count > 0)
 		{
@@ -459,42 +478,30 @@ typedef void (^_MIMapViewChange)(void);
 
 #pragma mark - Transaction Actions
 
-- (void)transaction:(MITransaction *)transaction addAnnotation:(id <MKAnnotation>)annotation
+- (void)transition:(MITransition *)transition addAnnotation:(id <MKAnnotation>)annotation
 {
-	if (annotation != nil)
-	{
-		MIAssert3(_transaction == transaction, @"%p: Invalid change transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
-	}
+    MIAssert3(_transition == transition, @"%p: Invalid change transition: %@ while active:%@", (__bridge void *)self, transition, _transition);
 
 	[super addAnnotation:annotation];
 }
 
-- (void)transaction:(MITransaction *)transaction addAnnotations:(NSArray *)annotations
+- (void)transition:(MITransition *)transition addAnnotations:(NSArray *)annotations
 {
-	if (annotations.count > 0)
-	{
-		MIAssert3(_transaction == transaction, @"%p: Invalid change transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
-	}
+    MIAssert3(_transition == transition, @"%p: Invalid change transition: %@ while active:%@", (__bridge void *)self, transition, _transition);
 
 	[super addAnnotations:annotations];
 }
 
-- (void)transaction:(MITransaction *)transaction removeAnnotation:(id <MKAnnotation>)annotation
+- (void)transition:(MITransition *)transition removeAnnotation:(id <MKAnnotation>)annotation
 {
-	if (annotation != nil)
-	{
-		MIAssert3(_transaction == transaction, @"%p: Invalid change transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
-	}
+    MIAssert3(_transition == transition, @"%p: Invalid change transition: %@ while active:%@", (__bridge void *)self, transition, _transition);
 
 	[super removeAnnotation:annotation];
 }
 
-- (void)transaction:(MITransaction *)transaction removeAnnotations:(NSArray *)annotations
+- (void)transition:(MITransition *)transition removeAnnotations:(NSArray *)annotations
 {
-	if (annotations.count > 0)
-	{
-		MIAssert3(_transaction == transaction, @"%p: Invalid change transaction: %@ while active:%@", (__bridge void *)self, transaction, _transaction);
-	}
+    MIAssert3(_transition == transition, @"%p: Invalid change transition: %@ while active:%@", (__bridge void *)self, transition, _transition);
 
 	[super removeAnnotations:annotations];
 }

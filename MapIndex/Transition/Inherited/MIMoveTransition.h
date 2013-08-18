@@ -1,5 +1,5 @@
 //
-// MIAscendingTransaction.m
+// MIMoveTransition.m
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,47 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MIAscendingTransaction.h"
-#import "MITransaction+Subclass.h"
+#import "MITransition.h"
 
-#import "MIMapView.h"
-#import "MIAnnotation.h"
-#import "MKAnnotationView+MIExtension.h"
+@interface MIMoveTransition : MITransition
 
-const NSTimeInterval _MIAscendingTransactionDuration = 0.2;
-
-@implementation MIAscendingTransaction
-
-#pragma mark - Animation
-
-- (void)performAddAnimation:(NSArray *)views
-{
-	[self lock];
-
-	for (MKAnnotationView *view in views)
-	{
-		[view setAlpha:0.f];
-
-		for (MIAnnotation *source in self.source)
-		{
-			if (!([source class] == [MIAnnotation class] && [source contains:view.annotation])) continue;
-
-			[view setAdjustedCenter:[self.mapView convertCoordinate:source.coordinate toPointToView:view.superview]];
-		}
-	}
-
-	[UIView animateWithDuration:_MIAscendingTransactionDuration animations:^
-	{
-		for (MKAnnotationView *view in views)
-		{
-			[view setAdjustedCenter:[self.mapView convertCoordinate:view.annotation.coordinate toPointToView:view.superview]];
-			[view setAlpha:1.f];
-		}
-
-	} completion:^(BOOL finished)
-	{
-		[self unlock];
-	}];
-}
+- (void)perform;
+- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views;
 
 @end
