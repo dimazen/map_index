@@ -1,5 +1,5 @@
 //
-// MIDescendingTransaction.m
+// MIZoomInTransition.m
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,63 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MIDescendingTransaction.h"
-#import "MITransaction+Subclass.h"
+#import "MIZoomInTransition.h"
+#import "MITransition+Subclass.h"
 
 #import "MIMapView.h"
 #import "MIAnnotation.h"
 #import "MKAnnotationView+MIExtension.h"
 
-const NSTimeInterval _MIDescendingTransactionDuration = 0.2;
+const NSTimeInterval _MIZoomInTransitionDuration = 0.2;
 
-@implementation MIDescendingTransaction
+@implementation MIZoomInTransition
 
-- (void)performRemoveAnimation
+#pragma mark - Animation
+
+- (void)performAddAnimation:(NSArray *)views
 {
-	NSMutableArray *views = [[NSMutableArray alloc] initWithCapacity:self.source.count];
-	for (id <MKAnnotation> sourceAnnotation in self.source)
-	{
-		MKAnnotationView *view = [self.mapView viewForAnnotation:sourceAnnotation];
-		if (view != nil)
-		{
-			[views addObject:view];
-		}
-	}
-
-	if (views.count == 0)
-	{
-		[self removeAnnotations:self.source];
-		return;
-	}
-
 	[self lock];
 
-	[UIView animateWithDuration:_MIDescendingTransactionDuration animations:^
+	for (MKAnnotationView *view in views)
 	{
-		[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
+		[view setAlpha:0.f];
 
-		for (MIAnnotation *target in self.target)
+		for (MIAnnotation *source in self.source)
 		{
-			if ([target class] != [MIAnnotation class]) continue;
+			if (!([source class] == [MIAnnotation class] && [source contains:view.annotation])) continue;
 
-			for (MKAnnotationView *view in views)
-			{
-				if (![target contains:view.annotation]) continue;
-
-				[view setAdjustedCenter:[self.mapView convertCoordinate:target.coordinate toPointToView:view.superview]];
-			}
+			[view setAdjustedCenter:[self.mapView convertCoordinate:source.coordinate toPointToView:view.superview]];
 		}
+	}
 
-	} completion:^(BOOL finished)
-	{
-		for (MKAnnotationView *view in views)
-		{
-			[view setAlpha:1.f];
-		}
+    [UIView animateWithDuration:_MIZoomInTransitionDuration animations:^
+    {
+        for (MKAnnotationView *view in views)
+        {
+            [view setAdjustedCenter:[self.mapView convertCoordinate:view.annotation.coordinate
+                                                      toPointToView:view.superview]];
+            [view setAlpha:1.f];
+        }
 
-		[self removeAnnotations:self.source];
-		[self unlock];
-	}];
+    } completion:^(BOOL finished)
+    {
+        [self unlock];
+    }];
 }
 
 @end

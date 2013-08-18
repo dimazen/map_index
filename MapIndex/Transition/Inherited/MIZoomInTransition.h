@@ -1,5 +1,5 @@
 //
-// MIRegularTransaction+Protected.h
+// MIZoomInTransition.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,12 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MIRegularTransaction.h"
+#import "MIMoveTransition.h"
 
-@interface MIRegularTransaction (Protected)
-
-- (void)performAddAnimation:(NSArray *)views;
-- (void)performRemoveAnimation;
+@interface MIZoomInTransition : MIMoveTransition
 
 @end

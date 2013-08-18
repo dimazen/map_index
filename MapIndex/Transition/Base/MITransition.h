@@ -1,5 +1,5 @@
 //
-// MIAscendingTransaction.h
+// MITransition.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,8 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MIRegularTransaction.h"
+#import <Foundation/Foundation.h>
 
-@interface MIAscendingTransaction : MIRegularTransaction
+@class MIMapView;
+
+@interface MITransition : NSObject
+
+@property (nonatomic, weak) MIMapView *mapView;
+
+@property (nonatomic, strong, readonly) NSArray *target;
+@property (nonatomic, strong, readonly) NSArray *source;
+
+- (id)initWithTarget:(NSArray *)target source:(NSArray *)source;
 
 @end

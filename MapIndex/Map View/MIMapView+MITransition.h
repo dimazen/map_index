@@ -1,5 +1,5 @@
 //
-// MIRegularTransaction.m
+// MIMapView+MITransition.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,11 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MITransaction.h"
+#import "MIMapView.h"
 
-@interface MIRegularTransaction : MITransaction
+@interface MIMapView (MITransition)
 
-- (void)perform;
-- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views;
+- (void)lock:(MITransition *)transition;
+- (void)unlock:(MITransition *)transition;
+- (BOOL)isLocked;
+
+#pragma mark - Transition Actions
+
+- (void)transition:(MITransition *)transition addAnnotation:(id <MKAnnotation>)annotation;
+- (void)transition:(MITransition *)transition addAnnotations:(NSArray *)annotations;
+- (void)transition:(MITransition *)transition removeAnnotation:(id <MKAnnotation>)annotation;
+- (void)transition:(MITransition *)transition removeAnnotations:(NSArray *)annotations;
 
 @end

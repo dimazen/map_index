@@ -1,5 +1,5 @@
 //
-// MITransaction.h
+// MITransition+Subclass.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,17 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MITransition.h"
 
-@class MIMapView;
+@protocol MKAnnotation;
 
-@interface MITransaction : NSObject
+@class MIMapView, NSArray;
 
-@property (nonatomic, weak) MIMapView *mapView;
+@interface MITransition (Subclass)
 
-@property (nonatomic, strong, readonly) NSArray *target;
-@property (nonatomic, strong, readonly) NSArray *source;
+- (void)perform;
+- (void)mapView:(MIMapView *)mapView didAddAnnotationViews:(NSArray *)views;
 
-- (id)initWithTarget:(NSArray *)target source:(NSArray *)source;
+- (void)addAnnotation:(id <MKAnnotation>)annotation;
+- (void)addAnnotations:(NSArray *)annotations;
+- (void)removeAnnotation:(id <MKAnnotation>)annotation;
+- (void)removeAnnotations:(NSArray *)annotations;
+
+- (void)lock;
+- (void)unlock;
 
 @end

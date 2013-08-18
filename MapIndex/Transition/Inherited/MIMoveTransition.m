@@ -1,5 +1,5 @@
 //
-// MIRegularTransaction.m
+// MIMoveTransition.m
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,16 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MIRegularTransaction.h"
-#import "MIRegularTransaction+Protected.h"
+#import "MIMoveTransition.h"
+#import "MIMoveTransition+Protected.h"
 
-#import "MIMapView+MITransaction.h"
-#import "MITransaction+Subclass.h"
+#import "MIMapView+MITransition.h"
+#import "MITransition+Subclass.h"
 #import "MITypes.h"
 
-const NSTimeInterval _MIRegularTransactionDuration = 0.2;
+const NSTimeInterval _MIMoveTransitionDuration = 0.2;
 
-@implementation MIRegularTransaction
+@implementation MIMoveTransition
 
 #pragma mark - Invocation
 
@@ -56,7 +56,7 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 @end
 
-@implementation MIRegularTransaction (Protected)
+@implementation MIMoveTransition (Protected)
 
 - (void)performRemoveAnimation
 {
@@ -79,20 +79,20 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 	[self lock];
 
-	[UIView animateWithDuration:_MIRegularTransactionDuration animations:^
-	{
-		[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
+    [UIView animateWithDuration:_MIMoveTransitionDuration animations:^
+    {
+        [views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
-	} completion:^(BOOL finished)
-	{
-		for (MKAnnotationView *view in views)
-		{
-			[view setAlpha:1.f];
-		}
+    } completion:^(BOOL finished)
+    {
+        for (MKAnnotationView *view in views)
+        {
+            [view setAlpha:1.f];
+        }
 
-		[self removeAnnotations:self.source];
-		[self unlock];
-	}];
+        [self removeAnnotations:self.source];
+        [self unlock];
+    }];
 }
 
 - (void)performAddAnimation:(NSArray *)views
@@ -101,17 +101,17 @@ const NSTimeInterval _MIRegularTransactionDuration = 0.2;
 
 	[views makeObjectsPerformSelector:@selector(setAlpha:) withObject:nil];
 
-	[UIView animateWithDuration:_MIRegularTransactionDuration animations:^
-	{
-		for (MKAnnotationView *view in views)
-		{
-			[view setAlpha:1.f];
-		}
+    [UIView animateWithDuration:_MIMoveTransitionDuration animations:^
+    {
+        for (MKAnnotationView *view in views)
+        {
+            [view setAlpha:1.f];
+        }
 
-	} completion:^(BOOL finished)
-	{
-		[self unlock];
-	}];
+    } completion:^(BOOL finished)
+    {
+        [self unlock];
+    }];
 }
 
 @end

@@ -1,5 +1,5 @@
 //
-// MITransactionFactory.m
+// MITransitionFactory.h
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,33 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MITransactionFactory.h"
+#import <Foundation/Foundation.h>
 
-#import "MIRegularTransaction.h"
-#import "MIAscendingTransaction.h"
-#import "MIDescendingTransaction.h"
+#import "MITransition.h"
 
-@implementation MITransactionFactory
-
-- (MITransaction *)transactionWithTarget:(NSArray *)target source:(NSArray *)source order:(NSComparisonResult)order
+typedef enum
 {
-	Class transactionClass = nil;
-	switch (order)
-	{
-		case NSOrderedSame:
-			transactionClass = [MIRegularTransaction class];
-			break;
+    MIChangeTypeUndefined,
+    MIChangeTypeMove,
+    MIChangeTypeZoomIn,
+    MIChangeTypeZoomOut,
+} MIChangeType;
 
-		case NSOrderedAscending:
-			transactionClass = [MIAscendingTransaction class];
-			break;
+@interface MITransitionFactory : NSObject
 
-		case NSOrderedDescending:
-			transactionClass = [MIDescendingTransaction class];
-			break;
-	}
-
-	return [[transactionClass alloc] initWithTarget:target source:source];
-}
+- (MITransition *)transitionWithTarget:(NSArray *)target source:(NSArray *)source changeType:(MIChangeType)changeType;
 
 @end

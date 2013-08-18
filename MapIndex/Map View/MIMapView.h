@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import <MapKit/MKMapView.h>
 
-@class MITransactionFactory, MITransaction, MIMapIndex;
+@class MITransitionFactory, MITransition, MIMapIndex;
 
 @interface MIMapView : MKMapView  <MKMapViewDelegate>
 {
@@ -35,7 +35,7 @@
 		BOOL delegateRegionWillChangeAnimated : 1;
 		BOOL delegateRegionDidChangeAnimated : 1;
 		BOOL removalHandlingRequired : 1;
-		BOOL transactionAddExpected : 1;
+		BOOL transitionAddExpected : 1;
 	} _flags;
 
 	__weak id <MKMapViewDelegate> _targetDelegate;
@@ -46,14 +46,14 @@
 	NSMutableSet *_clusters;
 
 	NSInteger _lockCount;
-  	MITransaction *_transaction;
+  	MITransition *_transition;
 
 	NSMutableArray *_deferredChanges;
 }
 
 - (void)setNeedsUpdateVisibleState;
 
-@property (nonatomic, strong) MITransactionFactory *transactionFactory;
+@property (nonatomic, strong) MITransitionFactory *transitionFactory;
 
 #pragma mark - Map Modifying
 

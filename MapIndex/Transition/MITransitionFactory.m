@@ -1,5 +1,5 @@
 //
-// MIDescendingTransaction.h
+// MITransitionFactory.m
 //
 // Copyright (c) 2013 Shemet Dmitriy
 //
@@ -21,8 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MIRegularTransaction.h"
+#import "MITransitionFactory.h"
 
-@interface MIDescendingTransaction : MIRegularTransaction
+#import "MIMoveTransition.h"
+#import "MIZoomInTransition.h"
+#import "MIZoomOutTransition.h"
+
+@implementation MITransitionFactory
+
+- (MITransition *)transitionWithTarget:(NSArray *)target source:(NSArray *)source changeType:(MIChangeType)changeType
+{
+	Class transitionClass = nil;
+	switch (changeType)
+	{
+        case MIChangeTypeUndefined:
+		case MIChangeTypeMove:
+			transitionClass = [MIMoveTransition class];
+			break;
+
+		case MIChangeTypeZoomIn:
+			transitionClass = [MIZoomInTransition class];
+			break;
+
+		case MIChangeTypeZoomOut:
+			transitionClass = [MIZoomOutTransition class];
+			break;
+	}
+
+	return [[transitionClass alloc] initWithTarget:target source:source];
+}
 
 @end
