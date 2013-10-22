@@ -98,12 +98,7 @@
 
 - (void)addAnnotation:(id <MKAnnotation>)annotation
 {
-	NSUInteger countBefore = _annotations.count;
-	[_annotations addObject:annotation];
-	if (countBefore < _annotations.count)
-	{
-		MIQuadTreeInsertPoint(_tree, MIPointMake(MKMapPointForCoordinate([annotation coordinate]),(__bridge void *)annotation));
-	}
+	[self addAnnotations:@[annotation]];
 }
 
 - (void)removeAnnotations:(NSArray *)annotations
@@ -121,12 +116,7 @@
 
 - (void)removeAnnotation:(id <MKAnnotation>)annotation
 {
-	NSUInteger countBefore = _annotations.count;
-	[_annotations removeObject:annotation];
-	if (_annotations.count < countBefore )
-	{
-		MIQuadTreeRemovePoint(_tree, MIPointMake(MKMapPointForCoordinate([annotation coordinate]),(__bridge void *)annotation));
-	}
+	[self removeAnnotations:@[annotation]];
 }
 
 #pragma mark - Annotations Access
@@ -172,7 +162,10 @@ void _MIMapIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType res
 	}
 }
 
-- (void)annotationsInMapRect:(MKMapRect)mapRect level:(NSUInteger)level callback:(void (^)(NSMutableSet *clusters, NSMutableSet *points))callback
+- (void)annotationsInMapRect:(MKMapRect)mapRect
+                       level:(NSUInteger)level
+	                clusters:(NSMutableSet **)clusters
+			          points:(NSMutableSet **)points
 {
 	MITraverse traverse =
 	{
@@ -180,17 +173,15 @@ void _MIMapIndexLevelAnnotationsCallback(MIPoint point, MITraverseResultType res
 		.context = (__bridge void *)self,
 	};
 
-	NSMutableSet *clustersContainer = [NSMutableSet new];
-	_clustersContainer = clustersContainer;
-	NSMutableSet *pointsContainer = [NSMutableSet new];
-	_pointsContainer = pointsContainer;
+	*clusters = [NSMutableSet new];
+	_clustersContainer = *clusters;
+	*points = [NSMutableSet new];
+	_pointsContainer = *points;
 
 	MIQuadTreeTraversLevelRectPoints(_tree, mapRect, level, &traverse);
 
 	_clustersContainer = nil;
 	_pointsContainer = nil;
-
-	callback(clustersContainer, pointsContainer);
 }
 
 #pragma mark - Pool

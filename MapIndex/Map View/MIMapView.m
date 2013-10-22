@@ -31,7 +31,6 @@
 #import "MITransition+Subclass.h"
 
 #import <MapKit/MKPinAnnotationView.h>
-
 #import "MIAnnotation+Package.h"
 
 static inline MIChangeType MIChangeTypeFromNSComparisonResult(NSComparisonResult result)
@@ -217,18 +216,18 @@ typedef void (^_MIMapViewChange)(void);
 	[self prepareAnnotationsUpdate];
 
 	NSUInteger level = [self zoomLevel];
+	NSMutableSet *requestClusters = nil;
+	NSMutableSet *requestPoints = nil;
 
-	__block NSMutableSet *target = [NSMutableSet new];
 	[_index annotationsInMapRect:[self updateAnnotationsRect]
-						   level:level + MIZoomDepthIncrement
-						callback:^(NSMutableSet *clusters, NSMutableSet *points)
-	{
-		[_clusters setSet:clusters];
+	                       level:level + MIZoomDepthIncrement
+		                clusters:&requestClusters
+				          points:&requestPoints];
 
-		[clusters unionSet:points];
-		target = clusters;
-	}];
+	[_clusters setSet:requestClusters];
 
+	NSMutableSet *target = requestClusters;
+	[target unionSet:requestPoints];
 	NSMutableSet *source = [[NSMutableSet alloc] initWithArray:[super annotations]];
 	if (self.userLocation != nil)
 	{
